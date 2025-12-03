@@ -1,1 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 @import "tailwindcss";
+
+* {
+    font-family: "Inter", sans-serif;
+}
+
+@layer {
+    .navbar {
+        @apply bg-[#22222899] h-[72px] flex items-center justify-between px-4 border-b border-b-[#FFFFFF1A] sticky top-0 z-10 backdrop-blur-3xl;
+    }
+}
+
+.swiper-slide {
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    border-radius: 24px;
+    max-width: 2000px;
+    min-height: 300px;
+}
+
+.mySwiper .swiper-slide:nth-child(1) {
+    background: url("/slide1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.mySwiper .swiper-slide:nth-child(2) {
+    background: url("/slide2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.mySwiper .swiper-slide:nth-child(3) {
+    background: url("/slide3.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
