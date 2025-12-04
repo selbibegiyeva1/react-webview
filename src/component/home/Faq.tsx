@@ -124,7 +124,7 @@ function Faq() {
     const [openId, setOpenId] = useState<number | null>(null);
 
     return (
-        <div className="pb-8">
+        <div>
             <b className="text-[24px]">FAQ</b>
 
             <div className="mt-6 flex flex-col gap-2.5">

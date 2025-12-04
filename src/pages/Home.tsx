@@ -9,15 +9,19 @@ import Faq from "../component/home/Faq"
 function Home() {
     return (
         <div className="h-full relative">
-            <div className="text-white px-4">
+            <div className="text-white px-4 md:w-3xl md:m-auto">
                 <Search />
                 <Slider />
 
-                <div className="mt-4">
+                <div className="mt-4 mb-10">
                     <Grid />
                 </div>
-                <Grid2 />
-                <Faq />
+                <div className="mb-20">
+                    <Grid2 />
+                </div>
+                <div className="mb-8">
+                    <Faq />
+                </div>
             </div>
             <Footer />
 

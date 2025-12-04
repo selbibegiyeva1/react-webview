@@ -1,6 +1,6 @@
 function Grid2() {
     return (
-        <div className="pb-20">
+        <div>
             <div className="flex gap-2">
                 <button className="flex items-center gap-1.5 font-bold px-4 py-[9px] bg-[#79109D] rounded-[10px]">
                     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -12,13 +12,13 @@ function Grid() {
     ]);
 
     return (
-        <div className="pb-10">
+        <div>
             <b className="text-[24px]">Популярное</b>
 
             <div className="grid grid-cols-2 gap-5 pt-6">
                 {items.map((item) => (
                     <Link to="/" key={item.id}>
-                        <div className="overflow-hidden rounded-3xl h-[125px]">
+                        <div className="overflow-hidden rounded-3xl h-[125px] md:h-[200px]">
                             <img
                                 src={item.img}
                                 alt={item.name}
