@@ -55,7 +55,7 @@ function Steam() {
                     <Form click={modalFunc} />
                 </div>
 
-                <div className="my-4">
+                <div className="my-4 sticky bottom-0">
                     <Total />
                 </div>
 
