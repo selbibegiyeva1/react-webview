@@ -2,6 +2,7 @@ import { useState } from "react"
 
 import Search from "../component/home/Search"
 import Modal from "../component/steam/Modal"
+import Banks from "../component/steam/Banks"
 
 import Banner from "../component/steam/Banner"
 import PayOption from "../component/steam/PayOption"
@@ -13,8 +14,10 @@ import Footer from "../component/layout/Footer"
 function Steam() {
     const [steam] = useState(true);
     const [modal, setModal] = useState(false);
+    const [banks, setBanks] = useState(false);
 
     const modalFunc = () => setModal(!modal);
+    const bankFunc = () => setBanks(!banks);
 
     return (
         <div className="h-full relative">
@@ -56,7 +59,7 @@ function Steam() {
                 </div>
 
                 <div className="my-4 sticky bottom-0">
-                    <Total />
+                    <Total click={bankFunc} />
                 </div>
 
                 <div className="my-4">
@@ -64,6 +67,7 @@ function Steam() {
                 </div>
 
                 <Modal click={modalFunc} modal={modal} />
+                <Banks click={bankFunc} modal={banks} />
             </div>
             <Footer widget={steam} />
 
