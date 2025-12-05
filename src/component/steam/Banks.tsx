@@ -5,10 +5,10 @@ interface ModalProps {
     modal: boolean;
 }
 
-const BANKS = ["Другие банки", "Rysgal", "Senagat", "TDDYIB"];
+const BANKS = ["Rysgal", "Другие банки", "Senagat", "TDDYIB"];
 
 function Banks({ click, modal }: ModalProps) {
-    const [selected, setSelected] = useState<string>("Другие банки");
+    const [selected, setSelected] = useState<string>("Rysgal");
 
     return (
         <div
@@ -46,19 +46,26 @@ function Banks({ click, modal }: ModalProps) {
                 <div className="flex flex-col gap-5 mt-4">
                     {BANKS.map((bank) => {
                         const active = selected === bank;
+                        const disabled = bank !== "Rysgal";
 
                         return (
                             <div
                                 key={bank}
-                                onClick={() => setSelected(bank)}
-                                className="
+                                // Only Rysgal can be clicked
+                                onClick={() => !disabled && setSelected(bank)}
+                                className={`
                                     flex items-center justify-between
                                     rounded-xl cursor-pointer
-                                    hover:bg-[#3A3A43]
                                     transition-colors
-                                "
+
+                                    ${disabled
+                                        ? "opacity-40 cursor-not-allowed"
+                                        : "hover:bg-[#3A3A43]"
+                                    }
+                                `}
                             >
                                 <span className="text-[16px]">{bank}</span>
+
                                 <div
                                     className={`
                                         h-5 w-5 rounded-full border
@@ -67,12 +74,7 @@ function Banks({ click, modal }: ModalProps) {
                                     `}
                                 >
                                     {active && (
-                                        <div
-                                            className="
-                                                h-3 w-3 rounded-full
-                                                bg-[#9B75FF]
-                                            "
-                                        />
+                                        <div className="h-3 w-3 rounded-full bg-[#9B75FF]" />
                                     )}
                                 </div>
                             </div>
