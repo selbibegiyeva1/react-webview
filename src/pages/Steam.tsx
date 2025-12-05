@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import Search from "../component/home/Search"
 
 import Banner from "../component/steam/Banner"
@@ -6,10 +8,13 @@ import Form from "../component/steam/Form"
 import Total from "../component/steam/Total"
 import Faq from "../component/steam/Faq"
 import Footer from "../component/layout/Footer"
-import { useState } from "react"
+import Modal from "../component/steam/Modal"
 
 function Steam() {
     const [steam] = useState(true);
+    const [modal, setModal] = useState(false);
+
+    const modalFunc = () => setModal(!modal);
 
     return (
         <div className="h-full relative">
@@ -47,16 +52,18 @@ function Steam() {
                 </div>
 
                 <div className="my-4">
-                    <Form />
+                    <Form click={modalFunc} />
                 </div>
 
-                <div className="my-4">
+                <div className="my-4 sticky bottom-0">
                     <Total />
                 </div>
 
                 <div className="my-4">
                     <Faq />
                 </div>
+
+                <Modal click={modalFunc} modal={modal} />
             </div>
             <Footer widget={steam} />
 

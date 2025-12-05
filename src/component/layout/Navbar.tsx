@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const USER_INFO_URL = `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_INFO_ENDPOINT}`;
 
@@ -39,7 +40,9 @@ function Navbar() {
         <div className="navbar">
             <div className="flex items-center justify-between w-full md:w-3xl md:m-auto px-4">
                 <div className="flex items-center gap-2">
-                    <img src="/logo.png" className="w-[63px]" />
+                    <Link to="/">
+                        <img src="/logo.png" className="w-[63px]" />
+                    </Link>
 
                     <svg width="16" height="16" viewBox="0 0 16 16">
                         <path
