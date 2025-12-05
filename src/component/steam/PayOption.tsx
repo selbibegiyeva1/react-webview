@@ -32,7 +32,6 @@ function PayOption() {
             </div>
 
             <div className="mt-8 flex flex-col gap-4">
-                {/* REGION */}
                 <div className="flex flex-col gap-4">
                     <b className="text-[20px]">Выберите регион</b>
                     <div className="relative">
@@ -40,10 +39,9 @@ function PayOption() {
                             value={region}
                             onChange={(e) => {
                                 setRegion(e.target.value);
-                                // optional: close tooltip when region changes
                                 setToltip(false);
                             }}
-                            className="px-4 py-3.5 w-full border outline-0 bg-[#1D1D22] border-[#FFFFFF1A] rounded-[10px] appearance-none"
+                            className="px-4 py-3.5 cursor-pointer w-full border outline-0 bg-[#1D1D22] border-[#FFFFFF1A] rounded-[10px] appearance-none"
                         >
                             <option>СНГ</option>
                             <option>Европа</option>
@@ -67,7 +65,6 @@ function PayOption() {
                             />
                         </svg>
 
-                        {/* info icon + tooltip ONLY when region === "СНГ" */}
                         {region === "СНГ" && (
                             <div className="absolute top-[50%] left-20 translate-x-[-50%] translate-y-[-50%]">
                                 <div className="relative">
@@ -103,7 +100,6 @@ function PayOption() {
                     </div>
                 </div>
 
-                {/* NOMINALS */}
                 <div className="flex flex-col gap-4">
                     <b className="text-[20px]">Выберите номинал</b>
                     <div className="flex flex-wrap gap-3">
@@ -111,9 +107,9 @@ function PayOption() {
                             <button
                                 key={value}
                                 onClick={() => setActiveNominal(value)}
-                                className={`px-6 py-[11.5px] font-bold rounded-[10px] transition-all ${activeNominal === value
-                                        ? "bg-[#79109D] text-white"
-                                        : "bg-[#2F2F36] text-white/80"
+                                className={`px-6 py-[11.5px] font-bold cursor-pointer rounded-[10px] transition-all ${activeNominal === value
+                                    ? "bg-[#79109D] text-white"
+                                    : "bg-[#2F2F36] text-white/80"
                                     }`}
                             >
                                 {value}$
