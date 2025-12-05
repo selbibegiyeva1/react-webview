@@ -1,4 +1,8 @@
-function Footer() {
+interface widget {
+    widget: boolean;
+}
+
+function Footer({ widget }: widget) {
     return (
         <div className="py-8 bg-[#1E1E23] text-white">
             <div className="md:w-3xl md:m-auto flex flex-col gap-4 px-4">
@@ -36,6 +40,11 @@ function Footer() {
                         <b className="text-[18px]">+993 (62) 42-31-18</b>
                     </div>
                 </div>
+            </div>
+
+            <div className={`${widget ? "block" : "hidden"} mx-4 p-6 mt-6 bg-[#3C1F4A] rounded-2xl md:w-3xl md:mx-auto`}>
+                <b>Добавь наш виджет на свой сайт и зарабатывай вместе с Unite Gaming!</b>
+                <button className="mt-4 p-[10.5px] bg-[#A132C7] rounded-[10px] w-full font-bold">Подробнее</button>
             </div>
         </div>
     )

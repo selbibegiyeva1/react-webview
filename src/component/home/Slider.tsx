@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
@@ -9,9 +10,9 @@ import { EffectCoverflow, Pagination } from 'swiper/modules';
 
 function Slider() {
     const [slides] = useState([
-        { id: 1, head: "PUBG Mobile", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Скоро" },
-        { id: 2, head: "Steam", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Посмотреть" },
-        { id: 3, head: "Playstation", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Скоро" },
+        { id: 1, head: "PUBG Mobile", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Скоро", link: "/" },
+        { id: 2, head: "Steam", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Посмотреть", link: "/steam" },
+        { id: 3, head: "Playstation", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Скоро", link: "/" },
     ]);
 
     return (
@@ -38,7 +39,7 @@ function Slider() {
                         <div className='absolute bottom-0 px-4 py-5 w-full bg-linear-to-t from-black/80 via-black/40 to-transparent'>
                             <b className='text-[24px]'>{slide.head}</b>
                             <p className='mt-3 mb-4 text-[14px] font-medium max-w-[235px]'>{slide.text}</p>
-                            <button className='bg-[#A132C7] text-[14px] font-bold w-full p-[15.5px] rounded-[10px]'>{slide.button}</button>
+                            <Link to="/steam" className='bg-[#A132C7] flex justify-center max-w-full text-[14px] font-bold w-full p-[15.5px] rounded-[10px]'>{slide.button}</Link>
                         </div>
                     </SwiperSlide>
                 ))}
