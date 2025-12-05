@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import Search from "../component/home/Search"
+import Modal from "../component/steam/Modal"
 
 import Banner from "../component/steam/Banner"
 import PayOption from "../component/steam/PayOption"
@@ -8,7 +9,6 @@ import Form from "../component/steam/Form"
 import Total from "../component/steam/Total"
 import Faq from "../component/steam/Faq"
 import Footer from "../component/layout/Footer"
-import Modal from "../component/steam/Modal"
 
 function Steam() {
     const [steam] = useState(true);
