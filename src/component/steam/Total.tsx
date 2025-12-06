@@ -8,6 +8,7 @@ interface TotalProps {
         confirm: boolean;
     };
     onPay: () => void;
+    isSticky: boolean;
 }
 
 function Total({
@@ -17,6 +18,7 @@ function Total({
     onToggleConfirm,
     errors,
     onPay,
+    isSticky
 }: TotalProps) {
     const showBankError = errors.bank;
     const showConfirmError = errors.confirm && !isConfirmed;
@@ -33,7 +35,7 @@ function Total({
         >
             <b className="text-[20px]">Оплата</b>
 
-            <div className="mt-4">
+            <div className={isSticky ? "hidden" : "mt-4"}>
                 <div
                     onClick={click}
                     className={`flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border ${showBankError ? "border-[#F50100]" : "border-[#FFFFFF1A]"
@@ -50,15 +52,15 @@ function Total({
             </div>
 
             <div className="my-4">
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
+                <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Регион</p>
                     <p>СНГ</p>
                 </div>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
+                <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Логин в Steam</p>
                     <p>ВТФкиллер</p>
                 </div>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
+                <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Почта</p>
                     <p>ВТФкиллер@gmail.com</p>
                 </div>
@@ -84,7 +86,7 @@ function Total({
             <button
                 type="button"
                 onClick={onToggleConfirm}
-                className="mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"
+                className={isSticky ? "hidden" : "mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"}
             >
                 <div
                     className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors ${showConfirmError

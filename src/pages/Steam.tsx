@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Search from "../component/home/Search";
 import Modal from "../component/steam/Modal";
@@ -34,6 +34,8 @@ function Steam() {
         bank: false,
         confirm: false,
     });
+
+    const [isSticky, setIsSticky] = useState(true);
 
     const modalFunc = () => setModal((prev) => !prev);
     const bankFunc = () => setBanks((prev) => !prev);
@@ -81,6 +83,32 @@ function Steam() {
             return;
         }
     };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            // how many pixels we scrolled from the top
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            // viewport height in pixels
+            const viewportHeight =
+                window.innerHeight || document.documentElement.clientHeight;
+
+            // when scroll position > 70% of one screen height => turn off sticky
+            const thresholdPx = viewportHeight * 0.7;
+
+            const shouldStick = scrollY < thresholdPx;
+
+            setIsSticky(shouldStick);
+        };
+
+        handleScroll(); // run once on mount so it's correct on first render
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
 
     return (
         <div className="h-full relative">
@@ -138,7 +166,7 @@ function Steam() {
                     />
                 </div>
 
-                <div className="my-4">
+                <div className={`my-4 ${isSticky ? "sticky bottom-0" : ""}`}>
                     <Total
                         click={bankFunc}
                         selectedBank={selectedBank}
@@ -146,6 +174,7 @@ function Steam() {
                         onToggleConfirm={handleToggleConfirm}
                         errors={{ bank: errors.bank, confirm: errors.confirm }}
                         onPay={handlePay}
+                        isSticky={isSticky}
                     />
                 </div>
 
