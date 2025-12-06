@@ -31,6 +31,7 @@ function Form({
                     </svg>
                 </div>
                 <input
+                    id="steam-login"
                     className={`outline-none p-4 rounded-[10px] mt-3 border bg-transparent text-white placeholder:text-[#7E848B] ${errors.login ? "border-[#F50100]" : "border-[#FFFFFF1A]"
                         }`}
                     type="text"
@@ -46,6 +47,7 @@ function Form({
             <div className="flex flex-col">
                 <span className="font-medium">Почта</span>
                 <input
+                    id="steam-email"
                     className={`outline-none p-4 rounded-[10px] mt-3 border bg-transparent text-white placeholder:text-[#7E848B] ${errors.email ? "border-[#F50100]" : "border-[#FFFFFF1A]"
                         }`}
                     type="email"

@@ -37,6 +37,7 @@ function Total({
 
             <div className={isSticky ? "hidden" : "mt-4"}>
                 <div
+                    id="bank-select"
                     onClick={click}
                     className={`flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border ${showBankError ? "border-[#F50100]" : "border-[#FFFFFF1A]"
                         }`}
@@ -84,6 +85,7 @@ function Total({
             </div>
 
             <button
+                id="confirm-checkbox"
                 type="button"
                 onClick={onToggleConfirm}
                 className={isSticky ? "hidden" : "mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"}
