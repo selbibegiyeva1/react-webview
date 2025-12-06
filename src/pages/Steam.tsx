@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import Search from "../component/home/Search";
 import Modal from "../component/steam/Modal";
@@ -11,104 +11,31 @@ import Total from "../component/steam/Total";
 import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
 
-type ErrorsState = {
-    login: boolean;
-    email: boolean;
-    bank: boolean;
-    confirm: boolean;
-};
+import { useStickyScroll } from "../hooks/steam/useStickyScroll";
+import { useSteamValidation } from "../hooks/steam/useSteamValidation";
 
 function Steam() {
     const [steam] = useState(true);
     const [modal, setModal] = useState(false);
     const [banks, setBanks] = useState(false);
 
-    const [login, setLogin] = useState("");
-    const [email, setEmail] = useState("");
-    const [selectedBank, setSelectedBank] = useState<string | null>(null);
-    const [isConfirmed, setIsConfirmed] = useState(false);
+    const {
+        login,
+        email,
+        selectedBank,
+        isConfirmed,
+        errors,
+        handleLoginChange,
+        handleEmailChange,
+        handleSelectBank,
+        handleToggleConfirm,
+        handlePay,
+    } = useSteamValidation();
 
-    const [errors, setErrors] = useState<ErrorsState>({
-        login: false,
-        email: false,
-        bank: false,
-        confirm: false,
-    });
-
-    const [isSticky, setIsSticky] = useState(true);
+    const isSticky = useStickyScroll(0.7);
 
     const modalFunc = () => setModal((prev) => !prev);
     const bankFunc = () => setBanks((prev) => !prev);
-
-    const handleLoginChange = (value: string) => {
-        setLogin(value);
-        if (errors.login && value.trim()) {
-            setErrors((prev) => ({ ...prev, login: false }));
-        }
-    };
-
-    const handleEmailChange = (value: string) => {
-        setEmail(value);
-        if (errors.email && value.trim()) {
-            setErrors((prev) => ({ ...prev, email: false }));
-        }
-    };
-
-    const handleSelectBank = (bank: string) => {
-        setSelectedBank(bank);
-        setErrors((prev) => ({ ...prev, bank: false }));
-        setBanks(false);
-    };
-
-    const handleToggleConfirm = () => {
-        const next = !isConfirmed;
-        setIsConfirmed(next);
-        if (next) {
-            setErrors((prev) => ({ ...prev, confirm: false }));
-        }
-    };
-
-    const handlePay = () => {
-        const nextErrors: ErrorsState = {
-            login: !login.trim(),
-            email: !email.trim(),
-            bank: !selectedBank,
-            confirm: !isConfirmed,
-        };
-
-        setErrors(nextErrors);
-
-        const hasError = Object.values(nextErrors).some(Boolean);
-        if (hasError) {
-            return;
-        }
-    };
-
-    useEffect(() => {
-        const handleScroll = () => {
-            // how many pixels we scrolled from the top
-            const scrollY = window.scrollY || window.pageYOffset;
-
-            // viewport height in pixels
-            const viewportHeight =
-                window.innerHeight || document.documentElement.clientHeight;
-
-            // when scroll position > 70% of one screen height => turn off sticky
-            const thresholdPx = viewportHeight * 0.7;
-
-            const shouldStick = scrollY < thresholdPx;
-
-            setIsSticky(shouldStick);
-        };
-
-        handleScroll(); // run once on mount so it's correct on first render
-
-        window.addEventListener("scroll", handleScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener("scroll", handleScroll);
-        };
-    }, []);
 
     return (
         <div className="h-full relative">
@@ -193,7 +120,6 @@ function Steam() {
 
             <Footer widget={steam} />
 
-            {/* Scroll to top – drop your own SVG here */}
             <a href="#">
                 <svg
                     width="40"
