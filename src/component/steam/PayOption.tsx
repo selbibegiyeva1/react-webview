@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 
 interface PayOptionProps {
     onChangeAmount: (amountTmt: number) => void;
+    region: string;
+    onChangeRegion: (region: string) => void;
 }
 
-function PayOption({ onChangeAmount }: PayOptionProps) {
+function PayOption({ onChangeAmount, region, onChangeRegion }: PayOptionProps) {
     const [activeType, setActiveType] = useState<"deposit" | "voucher">("deposit");
-    const [region, setRegion] = useState<string>("СНГ");
 
     const nominals = [20, 40, 100, 150, 200, 500, 1000];
     const [activeNominal, setActiveNominal] = useState<number>(nominals[0]);
@@ -50,7 +51,7 @@ function PayOption({ onChangeAmount }: PayOptionProps) {
                         <select
                             value={region}
                             onChange={(e) => {
-                                setRegion(e.target.value);
+                                onChangeRegion(e.target.value);
                                 setToltip(false);
                             }}
                             className="px-4 py-3.5 cursor-pointer w-full border outline-0 bg-[#1D1D22] border-[#FFFFFF1A] rounded-[10px] appearance-none"

@@ -21,6 +21,7 @@ function Steam() {
     const [banks, setBanks] = useState(false);
 
     const [amountTmt, setAmountTmt] = useState<number>(20);
+    const [region, setRegion] = useState<string>("СНГ");
 
     const {
         login,
@@ -84,7 +85,11 @@ function Steam() {
                 <Banner />
 
                 <div className="my-4">
-                    <PayOption onChangeAmount={setAmountTmt} />
+                    <PayOption
+                        onChangeAmount={setAmountTmt}
+                        region={region}
+                        onChangeRegion={setRegion}
+                    />
                 </div>
 
                 <div className="my-4">
@@ -109,6 +114,10 @@ function Steam() {
                         isSticky={isSticky}
                         steamAmountUsd={usdAmount}
                         isSteamRateLoading={steamRateLoading}
+                        region={region}
+                        login={login}
+                        email={email}
+                        amountTmt={amountTmt}
                     />
                 </div>
 

@@ -11,6 +11,10 @@ interface TotalProps {
     isSticky: boolean;
     steamAmountUsd?: number | null;
     isSteamRateLoading?: boolean;
+    region: string;
+    login: string;
+    email: string;
+    amountTmt: number;
 }
 
 function Total({
@@ -22,7 +26,11 @@ function Total({
     onPay,
     isSticky,
     steamAmountUsd,
-    isSteamRateLoading
+    isSteamRateLoading,
+    region,
+    login,
+    email,
+    amountTmt,
 }: TotalProps) {
     const showBankError = errors.bank;
     const showConfirmError = errors.confirm && !isConfirmed;
@@ -65,15 +73,15 @@ function Total({
             <div className="my-4">
                 <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Регион</p>
-                    <p>СНГ</p>
+                    <p>{region}</p>
                 </div>
                 <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Логин в Steam</p>
-                    <p>ВТФкиллер</p>
+                     <p>{login || "—"}</p>
                 </div>
                 <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Почта</p>
-                    <p>ВТФкиллер@gmail.com</p>
+                    <p>{email || "—"}</p>
                 </div>
                 <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
                     <p>К зачислению в Steam</p>
@@ -81,7 +89,7 @@ function Total({
                 </div>
                 <div className="flex justify-between py-4 text-[20px]">
                     <b>Итого</b>
-                    <b>105 TMT</b>
+                    <b>{amountTmt} TMT</b>
                 </div>
             </div>
 
