@@ -14,6 +14,7 @@ import Footer from "../component/layout/Footer";
 import { useStickyScroll } from "../hooks/steam/useStickyScroll";
 import { useSteamValidation } from "../hooks/steam/useSteamValidation";
 import { useSteamRate } from "../hooks/steam/useSteamRate";
+import { useSteamAcquiringPay } from "../hooks/steam/useSteamAcquiringPay";
 
 function Steam() {
     const [steam] = useState(true);
@@ -33,7 +34,7 @@ function Steam() {
         handleEmailChange,
         handleSelectBank,
         handleToggleConfirm,
-        handlePay,
+        handlePay: validatePay
     } = useSteamValidation();
 
     const isSticky = useStickyScroll(0.7);
@@ -42,6 +43,22 @@ function Steam() {
     const bankFunc = () => setBanks((prev) => !prev);
 
     const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
+    const { createPayment, loading: acquiringLoading, error: acquiringError } =
+        useSteamAcquiringPay();
+
+    const handlePay = () => {
+        const isValid = validatePay();
+        if (!isValid) return;
+
+        if (!selectedBank) return;
+
+        createPayment({
+            steam_username: login.trim(),
+            amount_tmt: amountTmt,
+            email: email.trim(),
+            bank: selectedBank,
+        });
+    };
 
     return (
         <div className="h-full relative">
@@ -118,6 +135,8 @@ function Steam() {
                         login={login}
                         email={email}
                         amountTmt={amountTmt}
+                        acquiringError={acquiringError}
+                        acquiringLoading={acquiringLoading}
                     />
                 </div>
 
@@ -143,7 +162,7 @@ function Steam() {
                     viewBox="0 0 40 40"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="fixed bottom-0 right-0 m-[19px]"
+                    className="fixed bottom-0 right-0 m-4"
                 >
                     <rect width="40" height="40" rx="8" fill="#5B5B66" />
                     <path d="M28 24L20 16L12 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

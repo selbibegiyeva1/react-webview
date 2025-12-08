@@ -83,7 +83,7 @@ export function useSteamValidation() {
         }
     };
 
-    const handlePay = () => {
+    const handlePay = (): boolean => {
         const nextErrors: ErrorsState = {
             login: !login.trim(),
             email: !email.trim(),
@@ -96,9 +96,9 @@ export function useSteamValidation() {
         const hasError = Object.values(nextErrors).some(Boolean);
         if (hasError) {
             scrollToFirstError(nextErrors);
-            return;
+            return false;
         }
-
+        return true;
     };
 
     return {

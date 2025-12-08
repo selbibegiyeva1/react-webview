@@ -15,6 +15,8 @@ interface TotalProps {
     login: string;
     email: string;
     amountTmt: number;
+    acquiringError?: string | null;
+    acquiringLoading?: boolean;
 }
 
 function Total({
@@ -31,6 +33,8 @@ function Total({
     login,
     email,
     amountTmt,
+    acquiringError,
+    acquiringLoading
 }: TotalProps) {
     const showBankError = errors.bank;
     const showConfirmError = errors.confirm && !isConfirmed;
@@ -77,7 +81,7 @@ function Total({
                 </div>
                 <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Логин в Steam</p>
-                     <p>{login || "—"}</p>
+                    <p>{login || "—"}</p>
                 </div>
                 <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Почта</p>
@@ -141,12 +145,20 @@ function Total({
                 </p>
             </button>
 
+            {acquiringError && (
+                <p className="mt-2 text-[12px] text-[#F50100]">
+                    {acquiringError}
+                </p>
+            )}
+
             <button
                 type="submit"
-                className="bg-[#A132C7] p-[14.5px] w-full rounded-[10px] text-[14px] font-bold cursor-pointer"
+                className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60"
+                disabled={acquiringLoading}
             >
-                Оплатить
+                {acquiringLoading ? "Переход к оплате..." : `Оплатить ${amountTmt} TMT`}
             </button>
+
 
             <div className="mt-4 text-center">
                 <p className="text-[#FFFFFF99] text-[12px] font-medium leading-4.5 max-w-[278px] mx-auto">
