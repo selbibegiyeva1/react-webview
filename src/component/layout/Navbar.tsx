@@ -54,7 +54,11 @@ function Navbar() {
                         />
                     </svg>
 
-                    {companyLogo && <img src={companyLogo} className="w-8 h-8" />}
+                    {companyLogo && (
+                        <div className="w-8 h-8">
+                            <img src={companyLogo} className="w-full h-full object-cover" />
+                        </div>
+                    )}
                 </div>
 
                 <select className="outline-none text-white bg-[#22222899] text-[15px] font-medium">

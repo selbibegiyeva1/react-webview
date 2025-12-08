@@ -151,6 +151,7 @@ function Faq() {
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
+                                    style={{ minWidth: 24, minHeight: 24 }}
                                     className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""
                                         }`}
                                 >
