@@ -13,11 +13,14 @@ import Footer from "../component/layout/Footer";
 
 import { useStickyScroll } from "../hooks/steam/useStickyScroll";
 import { useSteamValidation } from "../hooks/steam/useSteamValidation";
+import { useSteamRate } from "../hooks/steam/useSteamRate";
 
 function Steam() {
     const [steam] = useState(true);
     const [modal, setModal] = useState(false);
     const [banks, setBanks] = useState(false);
+
+    const [amountTmt, setAmountTmt] = useState<number>(20);
 
     const {
         login,
@@ -36,6 +39,8 @@ function Steam() {
 
     const modalFunc = () => setModal((prev) => !prev);
     const bankFunc = () => setBanks((prev) => !prev);
+
+    const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
 
     return (
         <div className="h-full relative">
@@ -79,7 +84,7 @@ function Steam() {
                 <Banner />
 
                 <div className="my-4">
-                    <PayOption />
+                    <PayOption onChangeAmount={setAmountTmt} />
                 </div>
 
                 <div className="my-4">
@@ -102,6 +107,8 @@ function Steam() {
                         errors={{ bank: errors.bank, confirm: errors.confirm }}
                         onPay={handlePay}
                         isSticky={isSticky}
+                        steamAmountUsd={usdAmount}
+                        isSteamRateLoading={steamRateLoading}
                     />
                 </div>
 

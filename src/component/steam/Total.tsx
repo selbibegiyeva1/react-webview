@@ -9,6 +9,8 @@ interface TotalProps {
     };
     onPay: () => void;
     isSticky: boolean;
+    steamAmountUsd?: number | null;
+    isSteamRateLoading?: boolean;
 }
 
 function Total({
@@ -18,7 +20,9 @@ function Total({
     onToggleConfirm,
     errors,
     onPay,
-    isSticky
+    isSticky,
+    steamAmountUsd,
+    isSteamRateLoading
 }: TotalProps) {
     const showBankError = errors.bank;
     const showConfirmError = errors.confirm && !isConfirmed;
@@ -27,6 +31,12 @@ function Total({
         e.preventDefault();
         onPay();
     };
+
+    const formattedSteamAmount = isSteamRateLoading
+        ? "-"
+        : steamAmountUsd != null
+            ? `~${steamAmountUsd.toFixed(2)}`
+            : "-";
 
     return (
         <form
@@ -67,7 +77,7 @@ function Total({
                 </div>
                 <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
                     <p>К зачислению в Steam</p>
-                    <p>~5 $</p>
+                    <p>{formattedSteamAmount} $</p>
                 </div>
                 <div className="flex justify-between py-4 text-[20px]">
                     <b>Итого</b>

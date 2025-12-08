@@ -1,11 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-function PayOption() {
+interface PayOptionProps {
+    onChangeAmount: (amountTmt: number) => void;
+}
+
+function PayOption({ onChangeAmount }: PayOptionProps) {
     const [activeType, setActiveType] = useState<"deposit" | "voucher">("deposit");
-    const [activeNominal, setActiveNominal] = useState<number>(1);
     const [region, setRegion] = useState<string>("СНГ");
 
-    const nominals = [1, 2, 5, 10, 15, 20, 25, 50, 100];
+    const nominals = [20, 40, 100, 150, 200, 500, 1000];
+    const [activeNominal, setActiveNominal] = useState<number>(nominals[0]);
+
+    useEffect(() => {
+        onChangeAmount(activeNominal);
+    }, [activeNominal, onChangeAmount]);
+
+    const handleNominalClick = (nominal: number) => {
+        setActiveNominal(nominal);
+    };
 
     const [toltip, setToltip] = useState(false);
     const toltipFunc = () => setToltip((prev) => !prev);
@@ -44,8 +56,7 @@ function PayOption() {
                             className="px-4 py-3.5 cursor-pointer w-full border outline-0 bg-[#1D1D22] border-[#FFFFFF1A] rounded-[10px] appearance-none"
                         >
                             <option>СНГ</option>
-                            <option>Европа</option>
-                            <option>Азия</option>
+                            <option>Россия</option>
                         </select>
 
                         <svg
@@ -103,16 +114,18 @@ function PayOption() {
                 <div className="flex flex-col gap-4">
                     <b className="text-[20px]">Выберите номинал</b>
                     <div className="flex flex-wrap gap-3">
-                        {nominals.map((value) => (
+                        {nominals.map((nominal) => (
                             <button
-                                key={value}
-                                onClick={() => setActiveNominal(value)}
-                                className={`px-6 py-[11.5px] font-bold cursor-pointer rounded-[10px] transition-all ${activeNominal === value
-                                    ? "bg-[#79109D] text-white"
-                                    : "bg-[#2F2F36] text-white/80"
+                                key={nominal}
+                                type="button"
+                                onClick={() => handleNominalClick(nominal)}
+                                className={`py-[11.5px] px-6 cursor-pointer rounded-[10px] text-[14px] font-bold transition-colors 
+                                        ${activeNominal === nominal
+                                        ? "bg-[#A132C7]"
+                                        : "bg-[#2E2E31]"
                                     }`}
                             >
-                                {value}$
+                                {nominal} TMT
                             </button>
                         ))}
                     </div>
