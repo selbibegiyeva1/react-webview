@@ -1,31 +1,19 @@
-import "./App.css";
+import './App.css'
 
-import { Routes, Route } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { Routes, Route } from 'react-router-dom'
 
-import Navbar from "./component/layout/Navbar";
-import Home from "./pages/Home";
-import Steam from "./pages/Steam";
-import Call from "./pages/Call";
+import Navbar from './component/layout/Navbar'
+import Home from './pages/Home'
+import Steam from './pages/Steam'
+import Call from './pages/Call'
 
-import { useCreateSession } from "./hooks/useCreateSession";
+import SessionBootstrap from './component/SessionBootstrap'
 
 function App() {
-  const { createSession } = useCreateSession();
-  const bootstrapped = useRef(false);
-
-  useEffect(() => {
-    if (bootstrapped.current) return;
-    bootstrapped.current = true;
-
-    const token = localStorage.getItem("session_token");
-    if (token) return;
-
-    createSession();
-  }, [createSession]);
 
   return (
-    <div className="bg-[#18181B]">
+    <div className='bg-[#18181B]'>
+      <SessionBootstrap />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -33,7 +21,7 @@ function App() {
         <Route path="/call" element={<Call />} />
       </Routes>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
