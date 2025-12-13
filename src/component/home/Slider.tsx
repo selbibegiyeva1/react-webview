@@ -39,7 +39,7 @@ function Slider() {
                         <div className='absolute bottom-0 px-4 py-5 w-full bg-linear-to-t from-black/80 via-black/40 to-transparent'>
                             <b className='text-[24px]'>{slide.head}</b>
                             <p className='mt-3 mb-4 text-[14px] font-medium max-w-[235px]'>{slide.text}</p>
-                            <Link to="/steam" className='bg-[#A132C7] flex justify-center max-w-full text-[14px] font-bold w-full p-[15.5px] rounded-[10px]'>{slide.button}</Link>
+                            <Link to={slide.link} className='bg-[#A132C7] flex justify-center max-w-full text-[14px] font-bold w-full p-[15.5px] rounded-[10px]'>{slide.button}</Link>
                         </div>
                     </SwiperSlide>
                 ))}
