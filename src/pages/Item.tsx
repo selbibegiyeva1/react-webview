@@ -1,65 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"
 
-import Search from "../component/home/Search";
-import Modal from "../component/steam/Modal";
-import Banks from "../component/steam/Banks";
+import ItemBanner from "../component/item/ItemBanner"
+import Search from "../component/home/Search"
+import Faq from "../component/steam/Faq"
+import Footer from "../component/layout/Footer"
 
-import Banner from "../component/steam/Banner";
-import PayOption from "../component/steam/PayOption";
-import Form from "../component/steam/Form";
-import Total from "../component/steam/Total";
-import Faq from "../component/steam/Faq";
-import Footer from "../component/layout/Footer";
-
-import { useStickyScroll } from "../hooks/steam/useStickyScroll";
-import { useSteamValidation } from "../hooks/steam/useSteamValidation";
-import { useSteamRate } from "../hooks/steam/useSteamRate";
-import { useSteamAcquiringPay } from "../hooks/steam/useSteamAcquiringPay";
-
-function Steam() {
-    const [modal, setModal] = useState(false);
-    const [banks, setBanks] = useState(false);
-
-    const [amountTmt, setAmountTmt] = useState<number>(20);
-    const [region, setRegion] = useState<string>("СНГ");
-
-    const {
-        login,
-        email,
-        selectedBank,
-        isConfirmed,
-        errors,
-        handleLoginChange,
-        handleEmailChange,
-        handleSelectBank,
-        handleToggleConfirm,
-        handlePay: validatePay
-    } = useSteamValidation();
-
-    const isSticky = useStickyScroll(0.7);
-
-    const modalFunc = () => setModal((prev) => !prev);
-    const bankFunc = () => setBanks((prev) => !prev);
-
-    const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
-    const { createPayment, loading: acquiringLoading, error: acquiringError } =
-        useSteamAcquiringPay();
-
-    const handlePay = () => {
-        const isValid = validatePay();
-        if (!isValid) return;
-
-        if (!selectedBank) return;
-
-        createPayment({
-            steam_username: login.trim(),
-            amount_tmt: amountTmt,
-            email: email.trim(),
-            bank: selectedBank,
-        });
-    };
-
+function Item() {
     return (
         <div className="h-full relative pt-[72px]">
             <div className="text-white px-4 md:w-3xl md:m-auto">
@@ -99,80 +45,18 @@ function Steam() {
                             </g>
                         </g>
                     </svg>
-                    <span className="text-white">Steam</span>
+                    <span className="text-white">Продукт</span>
                 </div>
 
-                <Banner />
-
-                <div className="my-4">
-                    <PayOption
-                        onChangeAmount={setAmountTmt}
-                        region={region}
-                        onChangeRegion={setRegion}
-                    />
-                </div>
-
-                <div className="my-4">
-                    <Form
-                        click={modalFunc}
-                        login={login}
-                        email={email}
-                        onChangeLogin={handleLoginChange}
-                        onChangeEmail={handleEmailChange}
-                        errors={{ login: errors.login, email: errors.email }}
-                    />
-                </div>
-
-                <div className={`my-4 ${isSticky ? "sticky bottom-0" : ""}`}>
-                    <Total
-                        click={bankFunc}
-                        selectedBank={selectedBank}
-                        isConfirmed={isConfirmed}
-                        onToggleConfirm={handleToggleConfirm}
-                        errors={{ bank: errors.bank, confirm: errors.confirm }}
-                        onPay={handlePay}
-                        isSticky={isSticky}
-                        steamAmountUsd={usdAmount}
-                        isSteamRateLoading={steamRateLoading}
-                        region={region}
-                        login={login}
-                        email={email}
-                        amountTmt={amountTmt}
-                        acquiringError={acquiringError}
-                        acquiringLoading={acquiringLoading}
-                    />
-                </div>
+                <ItemBanner />
 
                 <div className="my-4">
                     <Faq />
                 </div>
-
-                <Modal click={modalFunc} modal={modal} />
-                <Banks
-                    click={bankFunc}
-                    modal={banks}
-                    value={selectedBank}
-                    onChange={handleSelectBank}
-                />
             </div>
-
             <Footer />
-
-            <a href="#">
-                <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 40 40"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="fixed bottom-0 right-0 m-4"
-                >
-                    <rect width="40" height="40" rx="8" fill="#5B5B66" />
-                    <path d="M28 24L20 16L12 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </a>
         </div>
-    );
+    )
 }
 
-export default Steam;
+export default Item

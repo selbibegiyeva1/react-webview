@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useProductGroups } from "../../hooks/home/useProductGroups";
 
 function Grid2() {
     const [category, setCategory] = useState<"games" | "business">("games");
-    const { data, loading, error } = useProductGroups(category);
+    const { data, loading, error } = useProductGroups();
+
+    const filtered = useMemo(
+        () => data.filter((g) => g.category === category),
+        [data, category]
+    );
 
     return (
         <div>
@@ -43,9 +48,9 @@ function Grid2() {
                     <div className="text-red-400">{error}</div>
                 ) : (
                     <div className="grid grid-cols-2 gap-5">
-                        {data.map((group) => (
+                        {filtered.map((group) => (
                             <div key={group.group_name}>
-                                <Link to="/">
+                                <Link to={`/item/${encodeURIComponent(group.group_name)}`}>
                                     <div className="overflow-hidden rounded-3xl h-[185px] md:h-[200px] bg-[#222228] flex items-center justify-center">
                                         <img
                                             src={group.icon_url}

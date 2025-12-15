@@ -4,6 +4,8 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./component/layout/Navbar";
 import Home from "./pages/Home";
 import Steam from "./pages/Steam";
+import Item from "./pages/Item";
+
 import SessionGuard from "./component/SessionGuard";
 
 function App() {
@@ -24,6 +26,22 @@ function App() {
           element={
             <SessionGuard>
               <Steam />
+            </SessionGuard>
+          }
+        />
+        <Route
+          path="/item"
+          element={
+            <SessionGuard>
+              <Item />
+            </SessionGuard>
+          }
+        />
+        <Route
+          path="/item/:groupName"
+          element={
+            <SessionGuard>
+              <Item />
             </SessionGuard>
           }
         />
