@@ -1,27 +1,35 @@
-import './App.css'
+import "./App.css";
+import { Routes, Route } from "react-router-dom";
 
-import { Routes, Route } from 'react-router-dom'
-
-import Navbar from './component/layout/Navbar'
-import Home from './pages/Home'
-import Steam from './pages/Steam'
-import Call from './pages/Call'
-
-import SessionBootstrap from './component/SessionBootstrap'
+import Navbar from "./component/layout/Navbar";
+import Home from "./pages/Home";
+import Steam from "./pages/Steam";
+import SessionGuard from "./component/SessionGuard";
 
 function App() {
-
   return (
-    <div className='bg-[#18181B]'>
-      <SessionBootstrap />
+    <div className="bg-[#18181B]">
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/steam" element={<Steam />} />
-        <Route path="/call" element={<Call />} />
+        <Route
+          path="/"
+          element={
+            <SessionGuard>
+              <Home />
+            </SessionGuard>
+          }
+        />
+        <Route
+          path="/steam"
+          element={
+            <SessionGuard>
+              <Steam />
+            </SessionGuard>
+          }
+        />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

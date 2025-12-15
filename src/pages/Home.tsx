@@ -12,7 +12,7 @@ function Home() {
     const [steam] = useState(false);
 
     return (
-        <div className="h-full relative">
+        <div className="h-full relative pt-[72px]">
             <div className="text-white px-4 md:w-3xl md:m-auto">
                 <Search />
                 <Slider />
