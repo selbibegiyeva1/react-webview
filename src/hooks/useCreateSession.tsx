@@ -9,6 +9,19 @@ type SessionResponse = {
     session_url?: string;
 };
 
+function getJwtExpMs(token: string): number | null {
+    try {
+        const [, payloadB64] = token.split(".");
+        if (!payloadB64) return null;
+        const payloadJson = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"));
+        const payload = JSON.parse(payloadJson);
+        if (typeof payload.exp !== "number") return null;
+        return payload.exp * 1000;
+    } catch {
+        return null;
+    }
+}
+
 export function useCreateSession() {
     const createSession = useCallback(async () => {
         try {
@@ -40,7 +53,6 @@ export function useCreateSession() {
                     token = new URL(data.session_url).searchParams.get("token") ?? undefined;
                 } catch { }
             }
-
             if (!token && data.webview_url) {
                 try {
                     token = new URL(data.webview_url).searchParams.get("token") ?? undefined;
@@ -52,7 +64,10 @@ export function useCreateSession() {
                 return null;
             }
 
+            const expMs = getJwtExpMs(token) ?? (Date.now() + 55 * 60 * 1000); // fallback
             localStorage.setItem("session_token", token);
+            localStorage.setItem("session_token_exp", String(expMs));
+
             return token;
         } catch (err) {
             console.error("Failed to create session:", err);
