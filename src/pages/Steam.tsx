@@ -18,7 +18,6 @@ import { useSteamRate } from "../hooks/steam/useSteamRate";
 import { useSteamAcquiringPay } from "../hooks/steam/useSteamAcquiringPay";
 
 function Steam() {
-    const [steam] = useState(true);
     const [modal, setModal] = useState(false);
     const [banks, setBanks] = useState(false);
 
@@ -157,7 +156,7 @@ function Steam() {
                 />
             </div>
 
-            <Footer widget={steam} />
+            <Footer />
 
             <a href="#">
                 <svg

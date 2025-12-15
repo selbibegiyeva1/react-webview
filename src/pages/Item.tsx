@@ -2,10 +2,12 @@ import { Link } from "react-router-dom"
 
 import ItemBanner from "../component/item/ItemBanner"
 import Search from "../component/home/Search"
+import Faq from "../component/steam/Faq"
+import Footer from "../component/layout/Footer"
 
 function Item() {
     return (
-        <div className="h-screen relative pt-[72px]">
+        <div className="h-full relative pt-[72px]">
             <div className="text-white px-4 md:w-3xl md:m-auto">
                 <Search />
 
@@ -47,7 +49,12 @@ function Item() {
                 </div>
 
                 <ItemBanner />
+
+                <div className="my-4">
+                    <Faq />
+                </div>
             </div>
+            <Footer />
         </div>
     )
 }
