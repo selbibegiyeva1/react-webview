@@ -6,7 +6,7 @@ import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
 
-import { EffectCoverflow, Pagination } from 'swiper/modules';
+import { EffectCoverflow, Autoplay, Pagination } from 'swiper/modules';
 
 function Slider() {
     const [slides] = useState([
@@ -21,6 +21,10 @@ function Slider() {
                 effect={'coverflow'}
                 grabCursor={true}
                 centeredSlides={true}
+                autoplay={{
+                    delay: 2500,
+                    disableOnInteraction: false,
+                }}
                 slidesPerView={'auto'}
                 spaceBetween={16}
                 coverflowEffect={{
@@ -31,7 +35,7 @@ function Slider() {
                     slideShadows: true,
                 }}
                 pagination={false}
-                modules={[EffectCoverflow, Pagination]}
+                modules={[EffectCoverflow, Autoplay, Pagination]}
                 className="mySwiper"
             >
                 {slides.map((slide) => (
