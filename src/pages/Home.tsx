@@ -1,5 +1,3 @@
-import { useState } from "react"
-
 import Footer from "../component/layout/Footer"
 
 import Search from "../component/home/Search"
@@ -9,8 +7,6 @@ import Grid2 from "../component/home/Grid2"
 import Faq from "../component/home/Faq"
 
 function Home() {
-    const [steam] = useState(false);
-
     return (
         <div className="h-full relative pt-[72px]">
             <div className="text-white px-4 md:w-3xl md:m-auto">
@@ -27,8 +23,8 @@ function Home() {
                     <Faq />
                 </div>
             </div>
-            
-            <Footer widget={steam} />
+
+            <Footer />
 
             <a href="#">
                 <svg
