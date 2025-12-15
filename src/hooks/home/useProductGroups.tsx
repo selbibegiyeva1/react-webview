@@ -8,9 +8,9 @@ export type ProductGroup = {
 
 const GROUPS_URL = `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GROUPS_PATH}`;
 
-export function useProductGroups(category: "games" | "business" = "games") {
+export function useProductGroups() {
     const [data, setData] = useState<ProductGroup[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -18,19 +18,19 @@ export function useProductGroups(category: "games" | "business" = "games") {
         if (!token) {
             setError("No session token.");
             setData([]);
+            setLoading(false);
             return;
         }
 
         const controller = new AbortController();
 
-        const fetchGroups = async () => {
+        (async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                const url = `${GROUPS_URL}?category=${category}`;
-
-                const res = await fetch(url, {
+                // ✅ fetch entire endpoint once (no category query)
+                const res = await fetch(GROUPS_URL, {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
                     signal: controller.signal,
@@ -38,7 +38,6 @@ export function useProductGroups(category: "games" | "business" = "games") {
 
                 if (!res.ok) {
                     const text = await res.text().catch(() => "");
-                    console.error("Groups error:", res.status, text);
                     throw new Error(text || `Request failed with status ${res.status}`);
                 }
 
@@ -46,17 +45,15 @@ export function useProductGroups(category: "games" | "business" = "games") {
                 setData(Array.isArray(json) ? json : []);
             } catch (e) {
                 if (e instanceof DOMException && e.name === "AbortError") return;
-                console.error("Groups fetch failed:", e);
                 setError(e instanceof Error ? e.message : "Failed to fetch groups");
                 setData([]);
             } finally {
                 setLoading(false);
             }
-        };
+        })();
 
-        fetchGroups();
         return () => controller.abort();
-    }, [category]);
+    }, []);
 
     return { data, loading, error };
 }
