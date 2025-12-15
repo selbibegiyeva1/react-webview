@@ -2,6 +2,15 @@ import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useCreateSession } from "../hooks/useCreateSession";
 
+function isExpired(): boolean {
+    const expRaw = localStorage.getItem("session_token_exp");
+    if (!expRaw) return true;
+    const exp = Number(expRaw);
+    if (!Number.isFinite(exp)) return true;
+
+    return Date.now() > exp - 30_000;
+}
+
 export default function SessionBootstrap() {
     const { createSession } = useCreateSession();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -11,7 +20,6 @@ export default function SessionBootstrap() {
         if (ran.current) return;
         ran.current = true;
 
-        // 1) Grab access token from your generated link (adjust key names if needed)
         const accessToken =
             searchParams.get("access_token") ||
             searchParams.get("accessToken") ||
@@ -20,7 +28,6 @@ export default function SessionBootstrap() {
         if (accessToken) {
             localStorage.setItem("access_token", accessToken);
 
-            // remove token from URL (don’t keep secrets in the address bar)
             const next = new URLSearchParams(searchParams);
             next.delete("access_token");
             next.delete("accessToken");
@@ -28,11 +35,13 @@ export default function SessionBootstrap() {
             setSearchParams(next, { replace: true });
         }
 
-        // 2) If we already have a session token, don’t call again
         const existingSession = localStorage.getItem("session_token");
-        if (existingSession) return;
 
-        // 3) Create session once on initial mount
+        if (existingSession && !isExpired()) return;
+
+        localStorage.removeItem("session_token");
+        localStorage.removeItem("session_token_exp");
+
         void createSession();
     }, [createSession, searchParams, setSearchParams]);
 
