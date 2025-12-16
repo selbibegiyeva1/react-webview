@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Grid() {
+    const toItem = (group: string) => `/item/${encodeURIComponent(group)}`;
+
     const [items] = useState([
         { id: 1, name: "Steam", img: "/home/1.png", link: "/steam" },
-        { id: 2, name: "PUBG Mobile", img: "/home/2.png", link: "/" },
-        { id: 3, name: "PlayStation", img: "/home/3.png", link: "/" },
-        { id: 4, name: "Spotify", img: "/home/4.png", link: "/" },
-        { id: 5, name: "Apple ID", img: "/home/5.png", link: "/" },
-        { id: 6, name: "Battle.net", img: "/home/6.png", link: "/" },
+        { id: 2, name: "PUBG Mobile", img: "/home/2.png", link: toItem("PUBG Mobile") },
+        { id: 3, name: "PlayStation", img: "/home/3.png", link: toItem("Playstation") },
+        { id: 4, name: "Spotify", img: "/home/4.png", link: toItem("Spotify") },
+        { id: 5, name: "Apple ID", img: "/home/5.png", link: toItem("APPLE ID") },
+        { id: 6, name: "Battle.net", img: "/home/6.png", link: toItem("Battle.net") },
     ]);
 
     return (
