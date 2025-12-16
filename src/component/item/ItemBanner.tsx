@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useGroupItem } from "../../hooks/home/useGroupItem";
+import { useGroupItem } from "../../hooks/items/useGroupItem";
 
 export default function ItemBanner() {
     const { groupName } = useParams();
