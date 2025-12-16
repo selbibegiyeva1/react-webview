@@ -9,10 +9,30 @@ import 'swiper/css/pagination';
 import { EffectCoverflow, Autoplay, Pagination } from 'swiper/modules';
 
 function Slider() {
+    const toItem = (group: string) => `/item/${encodeURIComponent(group)}`;
+
     const [slides] = useState([
-        { id: 1, head: "PUBG Mobile", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Скоро", link: "/" },
-        { id: 2, head: "Steam", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Посмотреть", link: "/steam" },
-        { id: 3, head: "Playstation", text: "Пополняйте PUBG Mobile без комиссии по UID", button: "Скоро", link: "/" },
+        {
+            id: 1,
+            head: "PUBG Mobile",
+            text: "Пополняйте PUBG Mobile без комиссии по UID",
+            button: "Посмотреть",
+            link: toItem("PUBG Mobile"),
+        },
+        {
+            id: 2,
+            head: "Steam",
+            text: "Пополняйте PUBG Mobile без комиссии по UID",
+            button: "Посмотреть",
+            link: "/steam",
+        },
+        {
+            id: 3,
+            head: "Playstation",
+            text: "Пополняйте PUBG Mobile без комиссии по UID",
+            button: "Посмотреть",
+            link: toItem("Playstation"),
+        },
     ]);
 
     const rawId = useId();

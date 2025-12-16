@@ -107,7 +107,7 @@ function Total({
             </div>
 
             <div className={isSticky ? "text-center mb-4 text-[#FFFFFFCC] font-medium" : "hidden"}>
-                <p>К зачислению в Steam ~ {formattedSteamAmount}$</p>
+                <p>К зачислению в Steam {formattedSteamAmount}$</p>
             </div>
 
             <button
