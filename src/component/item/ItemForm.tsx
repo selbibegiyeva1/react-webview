@@ -4,9 +4,7 @@ function ItemForm() {
             <b className="text-[20px]">Пополнение аккаунта</b>
 
             <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                    <span className="font-medium">Где искать</span>
-                </div>
+                <span className="font-medium">Где искать</span>
                 <input
                     id="steam-login"
                     className="outline-none p-4 rounded-[10px] mt-3 border bg-transparent text-white placeholder:text-[#7E848B] border-[#FFFFFF1A]"
