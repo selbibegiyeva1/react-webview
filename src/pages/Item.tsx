@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom"
 
-import ItemBanner from "../component/item/ItemBanner"
 import Search from "../component/home/Search"
+import ItemBanner from "../component/item/ItemBanner"
+import ItemPayOption from "../component/item/ItemPayOption"
+import ItemForm from "../component/item/ItemForm"
+import ItemTotal from "../component/item/ItemTotal"
+
 import Faq from "../component/steam/Faq"
 import Footer from "../component/layout/Footer"
 
@@ -49,6 +53,18 @@ function Item() {
                 </div>
 
                 <ItemBanner />
+
+                <div className="my-4">
+                    <ItemPayOption />
+                </div>
+
+                <div className="my-4">
+                    <ItemForm />
+                </div>
+
+                <div className="my-4">
+                    <ItemTotal />
+                </div>
 
                 <div className="my-4">
                     <Faq />
