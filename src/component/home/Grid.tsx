@@ -9,7 +9,7 @@ function Grid() {
         { id: 2, name: "PUBG Mobile", img: "/home/2.png", link: toItem("PUBG Mobile") },
         { id: 3, name: "PlayStation", img: "/home/3.png", link: toItem("PlayStation") },
         { id: 4, name: "Spotify", img: "/home/4.png", link: toItem("Spotify") },
-        { id: 5, name: "Apple ID", img: "/home/5.png", link: toItem("Apple ID") },
+        { id: 5, name: "Apple ID", img: "/home/5.png", link: toItem("APPLE ID") },
         { id: 6, name: "Battle.net", img: "/home/6.png", link: toItem("Battle.net") },
     ]);
 
