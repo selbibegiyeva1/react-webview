@@ -52,10 +52,10 @@ function Total({
 
     return (
         <form
-            className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-white"
+            className={isSticky ? "px-5 pt-4 pb-8 bg-[#1D1D22] rounded-tl-4xl rounded-tr-4xl text-white" : "px-5 py-8 bg-[#1D1D22] rounded-4xl text-white"}
             onSubmit={handleSubmit}
         >
-            <b className="text-[20px]">Оплата</b>
+            <b className={isSticky ? "hidden" : "text-[20px]"}>Оплата</b>
 
             <div className={isSticky ? "hidden" : "mt-4"}>
                 <div
@@ -74,36 +74,40 @@ function Total({
                 )}
             </div>
 
-            <div className="my-4">
-                <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
+            <div className={isSticky ? "hidden" : "my-4"}>
+                <div className={"flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Регион</p>
                     <p>{region}</p>
                 </div>
-                <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
+                <div className={"flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Логин в Steam</p>
                     <p>{login || "—"}</p>
                 </div>
-                <div className={isSticky ? "hidden" : "flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
+                <div className={"flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>Почта</p>
                     <p>{email || "—"}</p>
                 </div>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
+                <div className={"flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"}>
                     <p>К зачислению в Steam</p>
                     <p>{formattedSteamAmount} $</p>
                 </div>
-                <div className="flex justify-between py-4 text-[20px]">
+                <div className={"flex justify-between py-4 text-[20px]"}>
                     <b>Итого</b>
                     <b>{amountTmt} TMT</b>
                 </div>
             </div>
 
-            <div className="mb-4 bg-[#2F2F36] flex items-center gap-2.5 px-4 py-3 rounded-[10px]">
+            <div className={isSticky ? "hidden" : "mb-4 bg-[#2F2F36] flex items-center gap-2.5 px-4 py-3 rounded-[10px]"}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 16H12.01M12 8V12M9 4H15L20 9V15L15 20H9L4 15V9L9 4Z" stroke="#F50100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 <p className="text-[14px] font-medium">
                     Товар возврату не подлежит
                 </p>
+            </div>
+
+            <div className={isSticky ? "text-center mb-4 text-[#FFFFFFCC] font-medium" : "hidden"}>
+                <p>К зачислению в Steam ~ {formattedSteamAmount}$</p>
             </div>
 
             <button

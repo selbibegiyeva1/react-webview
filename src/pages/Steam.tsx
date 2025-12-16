@@ -62,10 +62,12 @@ function Steam() {
 
     return (
         <div className="h-full relative pt-[72px]">
-            <div className="text-white px-4 md:w-3xl md:m-auto">
-                <Search />
+            <div className="text-white md:w-3xl md:m-auto">
+                <div className="px-4">
+                    <Search />
+                </div>
 
-                <div className="flex items-center gap-2.5 mb-4 font-medium text-[#969FA8]">
+                <div className="flex items-center gap-2.5 px-4 mb-4 font-medium text-[#969FA8]">
 
                     <Link to='/' className="flex items-center gap-2.5">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -102,9 +104,11 @@ function Steam() {
                     <span className="text-white">Steam</span>
                 </div>
 
-                <Banner />
+                <div className="px-4">
+                    <Banner />
+                </div>
 
-                <div className="my-4">
+                <div className="my-4 px-4">
                     <PayOption
                         onChangeAmount={setAmountTmt}
                         region={region}
@@ -112,7 +116,7 @@ function Steam() {
                     />
                 </div>
 
-                <div className="my-4">
+                <div className="my-4 px-4">
                     <Form
                         click={modalFunc}
                         login={login}
@@ -123,7 +127,7 @@ function Steam() {
                     />
                 </div>
 
-                <div className={`my-4 ${isSticky ? "sticky bottom-0" : ""}`}>
+                <div className={`my-4 ${isSticky ? "sticky bottom-0" : "px-4"}`}>
                     <Total
                         click={bankFunc}
                         selectedBank={selectedBank}
@@ -143,7 +147,7 @@ function Steam() {
                     />
                 </div>
 
-                <div className="my-4">
+                <div className="my-4 px-4">
                     <Faq />
                 </div>
 
