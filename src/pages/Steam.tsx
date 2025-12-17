@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Search from "../component/home/Search";
@@ -9,6 +9,10 @@ import Banner from "../component/steam/Banner";
 import PayOption from "../component/steam/PayOption";
 import Form from "../component/steam/Form";
 import Total from "../component/steam/Total";
+import SteamVoucherForm, {
+    type TotalPayload as VoucherTotalPayload,
+    type VoucherField,
+} from "../component/steam/SteamVoucherForm";
 import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
 
@@ -17,12 +21,29 @@ import { useSteamValidation } from "../hooks/steam/useSteamValidation";
 import { useSteamRate } from "../hooks/steam/useSteamRate";
 import { useSteamAcquiringPay } from "../hooks/steam/useSteamAcquiringPay";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const VOUCHER_ENDPOINT = import.meta.env.VITE_STEAM_VOUCHER_ENDPOINT;
+const STEAM_FORMS_URL = `${API_BASE}${VOUCHER_ENDPOINT}`;
+
+type SteamPayType = "deposit" | "voucher";
+
 function Steam() {
     const [modal, setModal] = useState(false);
     const [banks, setBanks] = useState(false);
 
+    const [activeType, setActiveType] = useState<SteamPayType>("deposit");
+
     const [amountTmt, setAmountTmt] = useState<number>(20);
     const [region, setRegion] = useState<string>("СНГ");
+
+    const [voucherFields, setVoucherFields] = useState<VoucherField[]>([]);
+    const [voucherLoading, setVoucherLoading] = useState(false);
+    const [voucherError, setVoucherError] = useState<string | null>(null);
+    const [voucherValues, setVoucherValues] = useState<Record<string, string>>({});
+    const [voucherTotal, setVoucherTotal] = useState<VoucherTotalPayload>({
+        lines: [],
+        totalPrice: null,
+    });
 
     const {
         login,
@@ -34,7 +55,8 @@ function Steam() {
         handleEmailChange,
         handleSelectBank,
         handleToggleConfirm,
-        handlePay: validatePay
+        clearVoucherFieldError,
+        handlePay: validatePay,
     } = useSteamValidation();
 
     const isSticky = useStickyScroll(0.7);
@@ -42,17 +64,84 @@ function Steam() {
     const modalFunc = () => setModal((prev) => !prev);
     const bankFunc = () => setBanks((prev) => !prev);
 
+    // Keep as-is for deposit; for voucher it's just unused.
     const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
-    const { createPayment, loading: acquiringLoading, error: acquiringError } =
+
+    const { createTopupPayment, createVoucherPayment, loading: acquiringLoading, error: acquiringError } =
         useSteamAcquiringPay();
 
-    const handlePay = () => {
-        const isValid = validatePay();
-        if (!isValid) return;
+    // Fetch voucher_fields (only when voucher tab is active)
+    useEffect(() => {
+        if (activeType !== "voucher") return;
+        if (voucherFields.length) return;
 
+        let cancelled = false;
+
+        (async () => {
+            try {
+                setVoucherLoading(true);
+                setVoucherError(null);
+
+                const token = localStorage.getItem("session_token");
+                const res = await fetch(STEAM_FORMS_URL, {
+                    method: "GET",
+                    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+                });
+
+                if (!res.ok) {
+                    const text = await res.text().catch(() => "");
+                    throw new Error(text || `Request failed with status ${res.status}`);
+                }
+
+                const data = (await res.json()) as any;
+
+                const fields = (data?.forms?.voucher_fields ?? data?.voucher_fields) as unknown;
+                const arr = Array.isArray(fields) ? (fields as VoucherField[]) : [];
+
+                if (!cancelled) setVoucherFields(arr);
+            } catch (e) {
+                if (cancelled) return;
+                setVoucherError(e instanceof Error ? e.message : "Failed to load voucher fields");
+            } finally {
+                if (!cancelled) setVoucherLoading(false);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeType]);
+
+    const voucherFieldMeta = useMemo(
+        () => voucherFields.map((f) => ({ name: f.name, required: f.required })),
+        [voucherFields]
+    );
+
+    const handlePay = () => {
+        const isValid =
+            activeType === "voucher"
+                ? validatePay({
+                    type: "voucher",
+                    voucherFields: voucherFieldMeta,
+                    voucherValues,
+                })
+                : validatePay({ type: "deposit" });
+
+        if (!isValid) return;
         if (!selectedBank) return;
 
-        createPayment({
+        if (activeType === "voucher") {
+            const payload: Record<string, unknown> = {};
+            Object.entries(voucherValues).forEach(([k, v]) => {
+                payload[k] = typeof v === "string" ? v.trim() : v;
+            });
+            payload.bank = selectedBank;
+            createVoucherPayment(payload);
+            return;
+        }
+
+        createTopupPayment({
             steam_username: login.trim(),
             amount_tmt: amountTmt,
             email: email.trim(),
@@ -68,7 +157,6 @@ function Steam() {
                 </div>
 
                 <div className="flex items-center gap-2.5 px-4 mb-4 font-medium text-[#969FA8]">
-
                     <Link to='/' className="flex items-center gap-2.5">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <mask id="mask0_196_3268" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
@@ -110,6 +198,8 @@ function Steam() {
 
                 <div className="my-4 px-4">
                     <PayOption
+                        activeType={activeType}
+                        onChangeType={setActiveType}
                         onChangeAmount={setAmountTmt}
                         region={region}
                         onChangeRegion={setRegion}
@@ -117,34 +207,66 @@ function Steam() {
                 </div>
 
                 <div className="my-4 px-4">
-                    <Form
-                        click={modalFunc}
-                        login={login}
-                        email={email}
-                        onChangeLogin={handleLoginChange}
-                        onChangeEmail={handleEmailChange}
-                        errors={{ login: errors.login, email: errors.email }}
-                    />
+                    {activeType === "deposit" ? (
+                        <Form
+                            click={modalFunc}
+                            login={login}
+                            email={email}
+                            onChangeLogin={handleLoginChange}
+                            onChangeEmail={handleEmailChange}
+                            errors={{ login: errors.login, email: errors.email }}
+                        />
+                    ) : voucherLoading ? (
+                        <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-white">Loading…</div>
+                    ) : voucherError ? (
+                        <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-red-400">{voucherError}</div>
+                    ) : (
+                        <SteamVoucherForm
+                            fields={voucherFields}
+                            fieldErrors={errors.fields}
+                            onClearFieldError={clearVoucherFieldError}
+                            onValuesChange={setVoucherValues}
+                            onTotalChange={setVoucherTotal}
+                        />
+                    )}
                 </div>
 
                 <div className={`my-4 ${isSticky ? "sticky bottom-0" : "px-4"}`}>
-                    <Total
-                        click={bankFunc}
-                        selectedBank={selectedBank}
-                        isConfirmed={isConfirmed}
-                        onToggleConfirm={handleToggleConfirm}
-                        errors={{ bank: errors.bank, confirm: errors.confirm }}
-                        onPay={handlePay}
-                        isSticky={isSticky}
-                        steamAmountUsd={usdAmount}
-                        isSteamRateLoading={steamRateLoading}
-                        region={region}
-                        login={login}
-                        email={email}
-                        amountTmt={amountTmt}
-                        acquiringError={acquiringError}
-                        acquiringLoading={acquiringLoading}
-                    />
+                    {activeType === "deposit" ? (
+                        <Total
+                            mode="deposit"
+                            click={bankFunc}
+                            selectedBank={selectedBank}
+                            isConfirmed={isConfirmed}
+                            onToggleConfirm={handleToggleConfirm}
+                            errors={{ bank: errors.bank, confirm: errors.confirm }}
+                            onPay={handlePay}
+                            isSticky={isSticky}
+                            steamAmountUsd={usdAmount}
+                            isSteamRateLoading={steamRateLoading}
+                            region={region}
+                            login={login}
+                            email={email}
+                            amountTmt={amountTmt}
+                            acquiringError={acquiringError}
+                            acquiringLoading={acquiringLoading}
+                        />
+                    ) : (
+                        <Total
+                            mode="voucher"
+                            click={bankFunc}
+                            selectedBank={selectedBank}
+                            isConfirmed={isConfirmed}
+                            onToggleConfirm={handleToggleConfirm}
+                            errors={{ bank: errors.bank, confirm: errors.confirm }}
+                            onPay={handlePay}
+                            isSticky={isSticky}
+                            lines={voucherTotal.lines}
+                            totalPrice={voucherTotal.totalPrice}
+                            acquiringError={acquiringError}
+                            acquiringLoading={acquiringLoading}
+                        />
+                    )}
                 </div>
 
                 <div className="my-4 px-4">
@@ -172,7 +294,7 @@ function Steam() {
                     className="fixed bottom-0 right-0 m-4"
                 >
                     <rect width="40" height="40" rx="8" fill="#5B5B66" />
-                    <path d="M28 24L20 16L12 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M28 24L20 16L12 24" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             </a>
         </div>

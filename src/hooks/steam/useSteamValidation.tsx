@@ -1,16 +1,34 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+export type SteamPayType = "deposit" | "voucher";
+
+export type VoucherFieldMeta = {
+    name: string;
+    required?: boolean;
+};
 
 export type ErrorsState = {
     login: boolean;
     email: boolean;
     bank: boolean;
     confirm: boolean;
+    fields: Record<string, boolean>; // dynamic fields (voucher)
 };
 
 const LOGIN_ID = "steam-login";
 const EMAIL_ID = "steam-email";
 const BANK_ID = "bank-select";
 const CONFIRM_ID = "confirm-checkbox";
+
+function focusById(id: string) {
+    const el = document.getElementById(id) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | HTMLElement
+        | null;
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if ("focus" in (el as any)) (el as any)?.focus?.();
+}
 
 export function useSteamValidation() {
     const [login, setLogin] = useState("");
@@ -23,6 +41,7 @@ export function useSteamValidation() {
         email: false,
         bank: false,
         confirm: false,
+        fields: {},
     });
 
     const handleLoginChange = (value: string) => {
@@ -41,63 +60,88 @@ export function useSteamValidation() {
 
     const handleSelectBank = (bank: string) => {
         setSelectedBank(bank);
-        setErrors((prev) => ({ ...prev, bank: false }));
+        if (errors.bank) setErrors((prev) => ({ ...prev, bank: false }));
     };
 
     const handleToggleConfirm = () => {
         const next = !isConfirmed;
         setIsConfirmed(next);
-        if (next) {
+        if (next && errors.confirm) {
             setErrors((prev) => ({ ...prev, confirm: false }));
         }
     };
 
-    const scrollToFirstError = (nextErrors: ErrorsState) => {
-        if (nextErrors.login) {
-            const el = document.getElementById(LOGIN_ID) as
-                | HTMLInputElement
-                | null;
-            el?.scrollIntoView({ behavior: "smooth", block: "center" });
-            el?.focus();
-            return;
-        }
-
-        if (nextErrors.email) {
-            const el = document.getElementById(EMAIL_ID) as
-                | HTMLInputElement
-                | null;
-            el?.scrollIntoView({ behavior: "smooth", block: "center" });
-            el?.focus();
-            return;
-        }
-
-        if (nextErrors.bank) {
-            const el = document.getElementById(BANK_ID);
-            el?.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
-        }
-
-        if (nextErrors.confirm) {
-            const el = document.getElementById(CONFIRM_ID);
-            el?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+    const clearVoucherFieldError = (fieldName: string) => {
+        if (!fieldName) return;
+        if (!errors.fields?.[fieldName]) return;
+        setErrors((prev) => ({
+            ...prev,
+            fields: { ...(prev.fields ?? {}), [fieldName]: false },
+        }));
     };
 
-    const handlePay = (): boolean => {
+    const scrollToFirstError = useMemo(() => {
+        return (nextErrors: ErrorsState, type: SteamPayType, orderedVoucherFieldNames: string[]) => {
+            if (type === "deposit") {
+                if (nextErrors.login) return focusById(LOGIN_ID);
+                if (nextErrors.email) return focusById(EMAIL_ID);
+            }
+
+            if (type === "voucher") {
+                const firstBad = orderedVoucherFieldNames.find((n) => nextErrors.fields?.[n]);
+                if (firstBad) return focusById(firstBad);
+            }
+
+            if (nextErrors.bank) return focusById(BANK_ID);
+            if (nextErrors.confirm) return focusById(CONFIRM_ID);
+        };
+    }, []);
+
+    const handlePay = (args?: {
+        type?: SteamPayType;
+        voucherFields?: VoucherFieldMeta[];
+        voucherValues?: Record<string, string>;
+    }): boolean => {
+        const type: SteamPayType = args?.type ?? "deposit";
+
+        const voucherFields = Array.isArray(args?.voucherFields) ? args!.voucherFields! : [];
+        const voucherValues = args?.voucherValues ?? {};
+
+        const orderedVoucherFieldNames = voucherFields
+            .filter((f) => (f?.required ?? true) && typeof f?.name === "string" && f.name.trim())
+            .map((f) => f.name);
+
+        const nextFieldErrors: Record<string, boolean> = {};
+
+        if (type === "voucher") {
+            for (const name of orderedVoucherFieldNames) {
+                nextFieldErrors[name] = !(voucherValues[name] ?? "").trim();
+            }
+        }
+
         const nextErrors: ErrorsState = {
-            login: !login.trim(),
-            email: !email.trim(),
+            login: type === "deposit" ? !login.trim() : false,
+            email: type === "deposit" ? !email.trim() : false,
             bank: !selectedBank,
             confirm: !isConfirmed,
+            fields: type === "voucher" ? nextFieldErrors : {},
         };
 
         setErrors(nextErrors);
 
-        const hasError = Object.values(nextErrors).some(Boolean);
+        const hasVoucherFieldError = type === "voucher" && Object.values(nextFieldErrors).some(Boolean);
+        const hasError =
+            nextErrors.login ||
+            nextErrors.email ||
+            nextErrors.bank ||
+            nextErrors.confirm ||
+            hasVoucherFieldError;
+
         if (hasError) {
-            scrollToFirstError(nextErrors);
+            scrollToFirstError(nextErrors, type, orderedVoucherFieldNames);
             return false;
         }
+
         return true;
     };
 
@@ -111,6 +155,7 @@ export function useSteamValidation() {
         handleEmailChange,
         handleSelectBank,
         handleToggleConfirm,
+        clearVoucherFieldError,
         handlePay,
     };
 }
