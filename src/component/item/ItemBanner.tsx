@@ -1,16 +1,14 @@
-import { useParams } from "react-router-dom";
-import { useGroupItem } from "../../hooks/home/useGroupItem";
+import type { GroupItemResponse, Status } from "../../hooks/items/useGroupItem";
 
-export default function ItemBanner() {
-    const { groupName } = useParams();
-    const { status, data, error } = useGroupItem(groupName ?? "");
+type Props = {
+    status: Status;
+    data: GroupItemResponse | null;
+    error: string | null;
+};
 
+export default function ItemBanner({ status, data, error }: Props) {
     if (status === "loading" || status === "idle") {
-        return (
-            <div className="px-5 pt-8 pb-[60px] bg-[#1D1D22] rounded-4xl text-white">
-                Loading…
-            </div>
-        );
+        return <div className="px-5 pt-8 pb-[60px] bg-[#1D1D22] rounded-4xl text-white">Loading…</div>;
     }
 
     if (status === "error") {
@@ -22,11 +20,7 @@ export default function ItemBanner() {
     }
 
     if (!data) {
-        return (
-            <div className="px-5 pt-8 pb-[60px] bg-[#1D1D22] rounded-4xl text-white">
-                No data
-            </div>
-        );
+        return <div className="px-5 pt-8 pb-[60px] bg-[#1D1D22] rounded-4xl text-white">No data</div>;
     }
 
     return (
@@ -36,9 +30,7 @@ export default function ItemBanner() {
                 <b className="text-[20px] leading-7">Пополнение баланса {data.group}</b>
             </div>
 
-            {data.short_info && (
-                <p className="text-[#FFFFFF99] text-[13px] mt-[18px]">{data.short_info}</p>
-            )}
+            {data.short_info && <p className="text-[#FFFFFF99] text-[13px] mt-[18px]">{data.short_info}</p>}
         </div>
     );
 }

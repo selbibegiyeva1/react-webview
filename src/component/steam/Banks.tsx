@@ -5,7 +5,7 @@ interface BanksProps {
     onChange: (bank: string) => void;
 }
 
-const BANKS = ["Rysgal", "Другие банки", "Senagat", "TDDYIB"];
+const BANKS = ["Rysgal", "Senagat", "Другие банки", "TDDYIB"];
 
 function Banks({ click, modal, value, onChange }: BanksProps) {
     if (!modal) return null;
@@ -24,7 +24,9 @@ function Banks({ click, modal, value, onChange }: BanksProps) {
                 <div className="mt-4 flex flex-col gap-5">
                     {BANKS.map((bank) => {
                         const active = value === bank;
-                        const disabled = bank !== "Rysgal";
+
+                        const enabledBanks = ["Rysgal", "Senagat"];
+                        const disabled = !enabledBanks.includes(bank);
 
                         return (
                             <button
@@ -38,10 +40,10 @@ function Banks({ click, modal, value, onChange }: BanksProps) {
                                     }
                                 }}
                                 className={`
-                                    flex items-center justify-between rounded-xl text-left transition-colors
-                                    ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
-                                `}
-                                >
+        flex items-center justify-between rounded-xl text-left transition-colors
+        ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+      `}
+                            >
                                 <span>{bank}</span>
 
                                 <span
