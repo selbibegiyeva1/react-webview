@@ -21,27 +21,42 @@ function Item() {
     const hasDeposit = (data?.forms?.topup_fields?.length ?? 0) > 0;
     const hasVoucher = (data?.forms?.voucher_fields?.length ?? 0) > 0;
 
-    // Hide buttons only when we *know* they're empty (after success)
     const showDeposit = status === "success" ? hasDeposit : true;
     const showVoucher = status === "success" ? hasVoucher : true;
 
-    // Force the only available option to be active
     const forcedType = useMemo<"deposit" | "voucher">(() => {
         if (status !== "success") return activeType;
 
         if (hasDeposit && !hasVoucher) return "deposit";
         if (!hasDeposit && hasVoucher) return "voucher";
 
-        // If both missing (rare, but possible), default to deposit
         if (!hasDeposit && !hasVoucher) return "deposit";
 
-        // Both available → keep user selection
         return activeType;
     }, [status, hasDeposit, hasVoucher, activeType]);
 
     useEffect(() => {
         if (forcedType !== activeType) setActiveType(forcedType);
     }, [forcedType, activeType]);
+
+    const fields = activeType === "voucher"
+        ? data?.forms?.voucher_fields
+        : data?.forms?.topup_fields;
+
+    const productField = (fields ?? []).find((f) => f.name === "product_id");
+    const productOptions = productField?.options ?? [];
+
+    const [activeProductId, setActiveProductId] = useState<string>("");
+
+    useEffect(() => {
+        const first = productOptions?.[0]?.value;
+        if (first == null) return;
+
+        const firstId = String(first);
+        const exists = productOptions.some((o) => String(o.value) === activeProductId);
+
+        if (!exists) setActiveProductId(firstId);
+    }, [productOptions, activeProductId]);
 
     return (
         <div className="h-full relative pt-[72px]">
@@ -89,7 +104,7 @@ function Item() {
 
                 <div className="my-4">
                     <ItemPayOption
-                        activeType={forcedType}
+                        activeType={activeType}
                         onChange={setActiveType}
                         showDeposit={showDeposit}
                         showVoucher={showVoucher}

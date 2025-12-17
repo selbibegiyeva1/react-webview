@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 
 type Props = {
     activeType: "deposit" | "voucher";
@@ -15,6 +16,12 @@ function ItemPayOption({
     canInteract = true,
 }: Props) {
     const visibleCount = Number(showDeposit) + Number(showVoucher);
+
+    useEffect(() => {
+        if (!canInteract) return;
+        if (showDeposit && !showVoucher && activeType !== "deposit") onChange("deposit");
+        if (!showDeposit && showVoucher && activeType !== "voucher") onChange("voucher");
+    }, [showDeposit, showVoucher, activeType, onChange, canInteract]);
 
     return (
         <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl">
