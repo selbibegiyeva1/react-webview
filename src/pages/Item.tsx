@@ -3,8 +3,10 @@ import { Link, useParams } from "react-router-dom";
 
 import Search from "../component/home/Search";
 import ItemBanner from "../component/item/ItemBanner";
-import ItemPayOption from "../component/item/ItemPayOption";
 import ItemForm from "../component/item/ItemForm";
+import ItemPayOption from "../component/item/ItemPayOption";
+import type { TotalPayload } from "../component/item/ItemForm";
+
 import ItemTotal from "../component/item/ItemTotal";
 
 import Faq from "../component/steam/Faq";
@@ -40,6 +42,11 @@ function Item() {
     useEffect(() => {
         if (forcedType !== activeType) setActiveType(forcedType);
     }, [forcedType, activeType]);
+
+    const [totalPayload, setTotalPayload] = useState<TotalPayload>({
+        lines: [],
+        totalPrice: null,
+    });
 
     return (
         <div className="h-full relative pt-[72px]">
@@ -101,11 +108,21 @@ function Item() {
                 </div>
 
                 <div className="my-4 px-4">
-                    <ItemForm activeType={forcedType} status={status} data={data} error={error} />
+                    <ItemForm
+                        activeType={forcedType /* or activeType */}
+                        status={status}
+                        data={data}
+                        error={error}
+                        onTotalChange={setTotalPayload}
+                    />
                 </div>
 
                 <div className={`my-4 ${isSticky ? "sticky bottom-0 z-50" : "px-4"}`}>
-                    <ItemTotal isSticky={isSticky} />
+                    <ItemTotal
+                        isSticky={isSticky}
+                        lines={totalPayload.lines}
+                        totalPrice={totalPayload.totalPrice}
+                    />
                 </div>
 
                 <div className="my-4 px-4">

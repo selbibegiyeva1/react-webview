@@ -1,11 +1,23 @@
-type ItemTotalProps = {
+import type { FormEvent } from "react";
+import type { TotalLine } from "./ItemForm";
+
+type Props = {
     isSticky: boolean;
+    lines: TotalLine[];
+    totalPrice: number | null;
 };
 
-function ItemTotal({ isSticky }: ItemTotalProps) {
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+function formatTmt(n: number) {
+    return new Intl.NumberFormat("ru-RU").format(n);
+}
+
+function ItemTotal({ isSticky, lines, totalPrice }: Props) {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
     };
+
+    const totalText = totalPrice != null ? `${formatTmt(totalPrice)} TMT` : "—";
+    const payText = totalPrice != null ? `Оплатить ${formatTmt(totalPrice)} TMT` : "Оплатить";
 
     return (
         <form
@@ -36,26 +48,21 @@ function ItemTotal({ isSticky }: ItemTotalProps) {
                 </div>
             </div>
 
+            {/* FULL (non-sticky) details */}
             <div className={isSticky ? "hidden" : "my-4"}>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
-                    <p>Регион</p>
-                    <p>Регион</p>
-                </div>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
-                    <p>Логин</p>
-                    <p>Логин</p>
-                </div>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
-                    <p>Почта</p>
-                    <p>Почта</p>
-                </div>
-                <div className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]">
-                    <p>К зачислению</p>
-                    <p>—</p>
-                </div>
+                {lines.map((line) => (
+                    <div
+                        key={line.key}
+                        className="flex justify-between py-4 text-[14px] text-[#FFFFFFCC] border-b border-[#FFFFFF1A]"
+                    >
+                        <p>{line.label}</p>
+                        <p className="text-right max-w-[55%] truncate">{line.value || "—"}</p>
+                    </div>
+                ))}
+
                 <div className="flex justify-between py-4 text-[20px]">
                     <b>Итого</b>
-                    <b>Итого TMT</b>
+                    <b>{totalText}</b>
                 </div>
             </div>
 
@@ -72,17 +79,21 @@ function ItemTotal({ isSticky }: ItemTotalProps) {
                 <p className="text-[14px] font-medium">Товар возврату не подлежит</p>
             </div>
 
-            <div className={isSticky ? "text-center mb-4 text-[#FFFFFFCC] font-medium" : "hidden"}>
-                <p>К зачислению —</p>
-            </div>
-
             <button
                 id="confirm-checkbox"
                 type="button"
                 className={isSticky ? "hidden" : "mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"}
             >
-                <div className="min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors bg-[#A132C7] border-[#A132C7]">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div
+                    className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors bg-[#A132C7] border-[#A132C7]`}
+                >
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
                         <path
                             d="M5 13L9 17L19 7"
                             stroke="white"
@@ -99,7 +110,7 @@ function ItemTotal({ isSticky }: ItemTotalProps) {
             </button>
 
             <button type="submit" className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60">
-                Оплатить 20 TMT
+                {payText}
             </button>
 
             <div className="mt-4 text-center">

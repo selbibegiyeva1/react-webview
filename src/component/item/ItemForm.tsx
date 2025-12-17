@@ -3,11 +3,23 @@ import type { GroupItemResponse } from "../../hooks/items/useGroupItem";
 
 type Status = "idle" | "loading" | "success" | "error";
 
+export type TotalLine = {
+    key: string;
+    label: string;
+    value: string;
+};
+
+export type TotalPayload = {
+    lines: TotalLine[];
+    totalPrice: number | null;
+};
+
 type Props = {
     activeType: "deposit" | "voucher";
     status: Status;
     data: GroupItemResponse | null;
     error: string | null;
+    onTotalChange?: (payload: TotalPayload) => void;
 };
 
 type GroupItemOption = {
@@ -45,18 +57,17 @@ function getProductTitle(o: GroupItemOption) {
     );
 }
 
-function getOptionLabel(option: GroupItemOption) {
-    if (typeof option?.name === "string" && option.name.trim()) return option.name;
-
-    const base =
-        (typeof option?.product === "string" && option.product.trim() && option.product) ||
-        (typeof option?.name_prefix === "string" && option.name_prefix.trim() && option.name_prefix) ||
-        String(option?.value ?? "");
-
-    return typeof option?.price === "number" ? `${base} — ${option.price}` : base;
+function getOptionDisplay(option?: GroupItemOption | null) {
+    if (!option) return "";
+    return (
+        (typeof option.name === "string" && option.name.trim() && option.name) ||
+        (typeof option.product === "string" && option.product.trim() && option.product) ||
+        (typeof option.name_prefix === "string" && option.name_prefix.trim() && option.name_prefix) ||
+        String(option.value ?? "")
+    );
 }
 
-function ItemForm({ activeType, status, data, error }: Props) {
+function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
     const [values, setValues] = useState<FormValues>({});
 
     useEffect(() => {
@@ -71,6 +82,7 @@ function ItemForm({ activeType, status, data, error }: Props) {
 
     const title = activeType === "voucher" ? "Ваучер" : "Пополнение аккаунта";
 
+    // --- region (to filter product options) ---
     const regionField = useMemo(() => {
         return fields.find((f) => f?.name === "region" && f?.type === "options");
     }, [fields]);
@@ -85,9 +97,11 @@ function ItemForm({ activeType, status, data, error }: Props) {
     const selectedRegionName = useMemo(() => {
         if (!selectedRegionValue) return "";
         const match = regionOptions.find((o) => String(o.value) === String(selectedRegionValue));
+        // API: region option has name in RU, value in EN sometimes
         return (match?.name ?? "").trim() || String(selectedRegionValue);
     }, [selectedRegionValue, regionOptions]);
 
+    // --- product_id (Товары) ---
     const productField = useMemo(() => {
         return fields.find((f) => f?.name === "product_id" && f?.type === "options");
     }, [fields]);
@@ -106,52 +120,106 @@ function ItemForm({ activeType, status, data, error }: Props) {
     const filteredProductOptions = useMemo(() => {
         if (!allProductOptions.length) return [];
 
+        // if product options don’t have region → no filtering
         if (!hasProductRegions || !regionField) return allProductOptions;
 
+        // user must pick region first
         if (!selectedRegionValue) return [];
 
         return allProductOptions.filter((p) => {
-            const pr = (p.region ?? "").toString().trim();
+            const pr = String(p.region ?? "").trim();
             if (!pr) return false;
 
+            // product.region is RU like "Бразилия"; region.value may be "Brazil"
             return pr === selectedRegionName || pr === String(selectedRegionValue);
         });
-    }, [
-        allProductOptions,
-        hasProductRegions,
-        regionField,
-        selectedRegionValue,
-        selectedRegionName,
-    ]);
+    }, [allProductOptions, hasProductRegions, regionField, selectedRegionValue, selectedRegionName]);
 
     const activeProductId = values["product_id"] ?? "";
 
+    // keep product_id valid for current region
     useEffect(() => {
         if (!productField) return;
 
+        // region filtering active and region not selected -> clear product
         if (hasProductRegions && regionField && !selectedRegionValue) {
-            if (values["product_id"]) {
-                setValues((prev) => ({ ...prev, product_id: "" }));
-            }
+            if (values["product_id"]) setValues((prev) => ({ ...prev, product_id: "" }));
             return;
         }
 
+        // no products for selected region -> clear product
         if (filteredProductOptions.length === 0) {
-            if (values["product_id"]) {
-                setValues((prev) => ({ ...prev, product_id: "" }));
-            }
+            if (values["product_id"]) setValues((prev) => ({ ...prev, product_id: "" }));
             return;
         }
 
         const current = values["product_id"];
         const isValid =
             typeof current === "string" &&
-            filteredProductOptions.some((o) => String(o.value) === current);
+            filteredProductOptions.some((o) => String(o.value) === String(current));
 
         if (!isValid) {
             setValues((prev) => ({ ...prev, product_id: String(filteredProductOptions[0].value) }));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filteredProductOptions, selectedRegionValue, productField]);
+
+    const selectedProduct = useMemo(() => {
+        if (!activeProductId) return null;
+        return filteredProductOptions.find((p) => String(p.value) === String(activeProductId)) ?? null;
+    }, [filteredProductOptions, activeProductId]);
+
+    const totalPrice = useMemo(() => {
+        if (selectedProduct && typeof selectedProduct.price === "number") return selectedProduct.price;
+        return null;
+    }, [selectedProduct]);
+
+    // ✅ Build dynamic lines for ItemTotal from backend fields + current values
+    const totalLines = useMemo<TotalLine[]>(() => {
+        if (!fields.length) return [];
+
+        return fields.map((f) => {
+            // product_id must be shown as "К зачислению" in ItemTotal
+            if (f.name === "product_id" && f.type === "options") {
+                return {
+                    key: "product_id",
+                    label: "К зачислению",
+                    value: selectedProduct ? getProductTitle(selectedProduct) : "",
+                };
+            }
+
+            if (f.type === "options") {
+                if (f.name === "region") {
+                    return { key: f.name, label: f.label || f.name, value: selectedRegionName };
+                }
+
+                const raw = values[f.name] ?? "";
+                const opts = Array.isArray(f.options) ? (f.options as GroupItemOption[]) : [];
+                const selected = opts.find((o) => String(o.value) === String(raw)) ?? null;
+
+                return {
+                    key: f.name,
+                    label: f.label || f.name,
+                    value: getOptionDisplay(selected) || raw,
+                };
+            }
+
+            // text field
+            return {
+                key: f.name,
+                label: f.label || f.name,
+                value: values[f.name] ?? "",
+            };
+        });
+    }, [fields, values, selectedRegionName, selectedProduct]);
+
+    // send to parent -> ItemTotal
+    useEffect(() => {
+        onTotalChange?.({
+            lines: totalLines,
+            totalPrice,
+        });
+    }, [onTotalChange, totalLines, totalPrice]);
 
     if (status === "loading" || status === "idle") {
         return <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-white">Loading…</div>;
@@ -179,19 +247,16 @@ function ItemForm({ activeType, status, data, error }: Props) {
                 fields.map((field) => {
                     const currentValue = values[field.name] ?? "";
 
+                    // product_id as purple buttons (in form it stays "Товары")
                     if (field.name === "product_id" && field.type === "options") {
                         return (
                             <div key={field.name} className="flex flex-col gap-4">
                                 <span className="font-medium">{productLabel}</span>
 
                                 {hasProductRegions && regionField && !selectedRegionValue ? (
-                                    <p className="text-[#FFFFFF99] text-[13px]">
-                                        Выберите регион, чтобы увидеть товары
-                                    </p>
+                                    <p className="text-[#FFFFFF99] text-[13px]">Выберите регион, чтобы увидеть товары</p>
                                 ) : filteredProductOptions.length === 0 ? (
-                                    <p className="text-[#FFFFFF99] text-[13px]">
-                                        Нет товаров для выбранного региона
-                                    </p>
+                                    <p className="text-[#FFFFFF99] text-[13px]">Нет товаров для выбранного региона</p>
                                 ) : (
                                     <div className="flex flex-wrap gap-3">
                                         {filteredProductOptions.map((p, idx) => {
@@ -203,7 +268,7 @@ function ItemForm({ activeType, status, data, error }: Props) {
                                                     key={`${id}-${idx}`}
                                                     type="button"
                                                     onClick={() => setValues((prev) => ({ ...prev, product_id: id }))}
-                                                    className={`py-[11.5px] px-6 cursor-pointer rounded-[10px] text-[14px] font-bold transition-colors 
+                                                    className={`py-[11.5px] px-6 cursor-pointer rounded-[10px] text-[14px] font-bold transition-colors
                             ${isActive ? "bg-[#A132C7]" : "bg-[#2E2E31]"}`}
                                                 >
                                                     <div className="flex flex-col items-start text-left">
@@ -218,6 +283,7 @@ function ItemForm({ activeType, status, data, error }: Props) {
                         );
                     }
 
+                    // options -> select
                     if (field.type === "options") {
                         const options = Array.isArray(field.options) ? (field.options as GroupItemOption[]) : [];
 
@@ -242,7 +308,7 @@ function ItemForm({ activeType, status, data, error }: Props) {
                                                 key={`${field.name}-${String(option?.value ?? idx)}-${idx}`}
                                                 value={String(option?.value ?? "")}
                                             >
-                                                {getOptionLabel(option)}
+                                                {getOptionDisplay(option)}
                                             </option>
                                         ))}
                                     </select>
@@ -268,6 +334,7 @@ function ItemForm({ activeType, status, data, error }: Props) {
                         );
                     }
 
+                    // text -> input
                     return (
                         <div key={field.name} className="flex flex-col">
                             <span className="font-medium">{field.label}</span>
