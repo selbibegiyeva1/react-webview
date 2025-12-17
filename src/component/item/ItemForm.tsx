@@ -1,6 +1,17 @@
-import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useGroupItem, type GroupItemField, type GroupItemOption } from "../../hooks/items/useGroupItem";
+import { useEffect, useMemo, useState } from "react";
+import type {
+    GroupItemField,
+    GroupItemOption,
+    GroupItemResponse,
+    Status,
+} from "../../hooks/items/useGroupItem";
+
+type Props = {
+    activeType: "deposit" | "voucher";
+    status: Status;
+    data: GroupItemResponse | null;
+    error: string | null;
+};
 
 type FormValues = Record<string, string>;
 
@@ -21,15 +32,20 @@ function getOptionLabel(option: GroupItemOption) {
     return typeof option?.price === "number" ? `${base} — ${option.price}` : base;
 }
 
-function ItemForm() {
-    const { groupName } = useParams();
-    const { status, data, error } = useGroupItem(groupName ?? "");
+function ItemForm({ activeType, status, data, error }: Props) {
     const [values, setValues] = useState<FormValues>({});
 
-    const topupFields = useMemo<GroupItemField[]>(() => {
-        const fields = data?.forms?.topup_fields;
-        return Array.isArray(fields) ? (fields as GroupItemField[]) : [];
-    }, [data]);
+    useEffect(() => {
+        setValues({});
+    }, [activeType]);
+
+    const fields = useMemo<GroupItemField[]>(() => {
+        const f = data?.forms;
+        const arr = activeType === "voucher" ? f?.voucher_fields : f?.topup_fields;
+        return Array.isArray(arr) ? (arr as GroupItemField[]) : [];
+    }, [data, activeType]);
+
+    const title = activeType === "voucher" ? "Ваучер" : "Пополнение аккаунта";
 
     if (status === "loading" || status === "idle") {
         return <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-white">Loading…</div>;
@@ -49,17 +65,16 @@ function ItemForm() {
 
     return (
         <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl flex flex-col gap-4">
-            <b className="text-[20px]">Пополнение аккаунта</b>
+            <b className="text-[20px]">{title}</b>
 
-            {topupFields.length === 0 ? (
-                <p className="text-[#FFFFFF99] text-[13px]">No form fields</p>
+            {fields.length === 0 ? (
+                <p className="text-[#FFFFFF99] text-[13px]">Нет полей для этого типа</p>
             ) : (
-                topupFields.map((field) => {
+                fields.map((field) => {
                     const currentValue = values[field.name] ?? "";
 
                     if (field.type === "options") {
                         const options = Array.isArray(field.options) ? (field.options as GroupItemOption[]) : [];
-
                         return (
                             <div key={field.name} className="flex flex-col">
                                 <span className="font-medium">{field.label}</span>
@@ -69,8 +84,8 @@ function ItemForm() {
                                         id={field.name}
                                         value={currentValue}
                                         onChange={(e) => setValues((prev) => ({ ...prev, [field.name]: e.target.value }))}
-                                        className={`outline-none p-4 appearance-none rounded-[10px] w-full border bg-[#1D1D22] border-[#FFFFFF1A] ${currentValue ? "text-white" : "text-[#7E848B]"
-                                            }`}
+                                        className={`outline-none p-4 w-full appearance-none rounded-[10px] border bg-transparent border-[#FFFFFF1A]
+                    ${currentValue ? "text-white" : "text-[#7E848B]"}`}
                                     >
                                         <option value="" disabled>
                                             Выберите
@@ -85,7 +100,7 @@ function ItemForm() {
                                         ))}
                                     </select>
                                     <svg
-                                        className="absolute top-[50%] right-0 pointer-events-none translate-x-[-50%] translate-y-[-50%]"
+                                        className="absolute top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
                                         width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>

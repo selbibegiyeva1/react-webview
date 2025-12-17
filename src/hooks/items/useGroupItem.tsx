@@ -31,7 +31,7 @@ export type GroupItemResponse = {
     forms?: GroupItemForms | null;
 };
 
-type Status = "idle" | "loading" | "success" | "error";
+export type Status = "idle" | "loading" | "success" | "error";
 
 const GROUP_FORM_URL = `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_GROUP_FORM_PATH}`;
 

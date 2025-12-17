@@ -1,15 +1,48 @@
-import { Link } from "react-router-dom"
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
-import Search from "../component/home/Search"
-import ItemBanner from "../component/item/ItemBanner"
-import ItemPayOption from "../component/item/ItemPayOption"
-import ItemForm from "../component/item/ItemForm"
-import ItemTotal from "../component/item/ItemTotal"
+import Search from "../component/home/Search";
+import ItemBanner from "../component/item/ItemBanner";
+import ItemPayOption from "../component/item/ItemPayOption";
+import ItemForm from "../component/item/ItemForm";
+import ItemTotal from "../component/item/ItemTotal";
 
-import Faq from "../component/steam/Faq"
-import Footer from "../component/layout/Footer"
+import Faq from "../component/steam/Faq";
+import Footer from "../component/layout/Footer";
+
+import { useGroupItem } from "../hooks/items/useGroupItem";
 
 function Item() {
+    const { groupName } = useParams();
+    const { status, data, error } = useGroupItem(groupName ?? "");
+
+    const [activeType, setActiveType] = useState<"deposit" | "voucher">("deposit");
+
+    const hasDeposit = (data?.forms?.topup_fields?.length ?? 0) > 0;
+    const hasVoucher = (data?.forms?.voucher_fields?.length ?? 0) > 0;
+
+    // Hide buttons only when we *know* they're empty (after success)
+    const showDeposit = status === "success" ? hasDeposit : true;
+    const showVoucher = status === "success" ? hasVoucher : true;
+
+    // Force the only available option to be active
+    const forcedType = useMemo<"deposit" | "voucher">(() => {
+        if (status !== "success") return activeType;
+
+        if (hasDeposit && !hasVoucher) return "deposit";
+        if (!hasDeposit && hasVoucher) return "voucher";
+
+        // If both missing (rare, but possible), default to deposit
+        if (!hasDeposit && !hasVoucher) return "deposit";
+
+        // Both available → keep user selection
+        return activeType;
+    }, [status, hasDeposit, hasVoucher, activeType]);
+
+    useEffect(() => {
+        if (forcedType !== activeType) setActiveType(forcedType);
+    }, [forcedType, activeType]);
+
     return (
         <div className="h-full relative pt-[72px]">
             <div className="text-white px-4 md:w-3xl md:m-auto">
@@ -52,14 +85,20 @@ function Item() {
                     <span className="text-white">Продукт</span>
                 </div>
 
-                <ItemBanner />
+                <ItemBanner status={status} data={data} error={error} />
 
                 <div className="my-4">
-                    <ItemPayOption />
+                    <ItemPayOption
+                        activeType={forcedType}
+                        onChange={setActiveType}
+                        showDeposit={showDeposit}
+                        showVoucher={showVoucher}
+                        canInteract={status === "success"}
+                    />
                 </div>
 
                 <div className="my-4">
-                    <ItemForm />
+                    <ItemForm activeType={forcedType} status={status} data={data} error={error} />
                 </div>
 
                 <div className="my-4">
