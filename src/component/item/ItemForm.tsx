@@ -20,6 +20,9 @@ type Props = {
     data: GroupItemResponse | null;
     error: string | null;
     onTotalChange?: (payload: TotalPayload) => void;
+
+    // ✅ validation: key = field.name (region, account, email, product_id, etc)
+    fieldErrors?: Record<string, boolean>;
 };
 
 type GroupItemOption = {
@@ -67,7 +70,7 @@ function getOptionDisplay(option?: GroupItemOption | null) {
     );
 }
 
-function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
+function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors }: Props) {
     const [values, setValues] = useState<FormValues>({});
 
     useEffect(() => {
@@ -82,7 +85,6 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
 
     const title = activeType === "voucher" ? "Ваучер" : "Пополнение аккаунта";
 
-    // --- region (to filter product options) ---
     const regionField = useMemo(() => {
         return fields.find((f) => f?.name === "region" && f?.type === "options");
     }, [fields]);
@@ -97,11 +99,9 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
     const selectedRegionName = useMemo(() => {
         if (!selectedRegionValue) return "";
         const match = regionOptions.find((o) => String(o.value) === String(selectedRegionValue));
-        // API: region option has name in RU, value in EN sometimes
         return (match?.name ?? "").trim() || String(selectedRegionValue);
     }, [selectedRegionValue, regionOptions]);
 
-    // --- product_id (Товары) ---
     const productField = useMemo(() => {
         return fields.find((f) => f?.name === "product_id" && f?.type === "options");
     }, [fields]);
@@ -119,35 +119,25 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
 
     const filteredProductOptions = useMemo(() => {
         if (!allProductOptions.length) return [];
-
-        // if product options don’t have region → no filtering
         if (!hasProductRegions || !regionField) return allProductOptions;
-
-        // user must pick region first
         if (!selectedRegionValue) return [];
-
         return allProductOptions.filter((p) => {
             const pr = String(p.region ?? "").trim();
             if (!pr) return false;
-
-            // product.region is RU like "Бразилия"; region.value may be "Brazil"
             return pr === selectedRegionName || pr === String(selectedRegionValue);
         });
     }, [allProductOptions, hasProductRegions, regionField, selectedRegionValue, selectedRegionName]);
 
     const activeProductId = values["product_id"] ?? "";
 
-    // keep product_id valid for current region
     useEffect(() => {
         if (!productField) return;
 
-        // region filtering active and region not selected -> clear product
         if (hasProductRegions && regionField && !selectedRegionValue) {
             if (values["product_id"]) setValues((prev) => ({ ...prev, product_id: "" }));
             return;
         }
 
-        // no products for selected region -> clear product
         if (filteredProductOptions.length === 0) {
             if (values["product_id"]) setValues((prev) => ({ ...prev, product_id: "" }));
             return;
@@ -174,12 +164,10 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
         return null;
     }, [selectedProduct]);
 
-    // ✅ Build dynamic lines for ItemTotal from backend fields + current values
     const totalLines = useMemo<TotalLine[]>(() => {
         if (!fields.length) return [];
 
         return fields.map((f) => {
-            // product_id must be shown as "К зачислению" in ItemTotal
             if (f.name === "product_id" && f.type === "options") {
                 return {
                     key: "product_id",
@@ -204,7 +192,6 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
                 };
             }
 
-            // text field
             return {
                 key: f.name,
                 label: f.label || f.name,
@@ -213,7 +200,6 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
         });
     }, [fields, values, selectedRegionName, selectedProduct]);
 
-    // send to parent -> ItemTotal
     useEffect(() => {
         onTotalChange?.({
             lines: totalLines,
@@ -227,9 +213,7 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
 
     if (status === "error") {
         return (
-            <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-red-400">
-                {error || "Error"}
-            </div>
+            <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-red-400">{error || "Error"}</div>
         );
     }
 
@@ -246,11 +230,12 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
             ) : (
                 fields.map((field) => {
                     const currentValue = values[field.name] ?? "";
+                    const showError = !!fieldErrors?.[field.name];
 
-                    // product_id as purple buttons (in form it stays "Товары")
+                    // product_id as purple buttons
                     if (field.name === "product_id" && field.type === "options") {
                         return (
-                            <div key={field.name} className="flex flex-col gap-4">
+                            <div key={field.name} id={field.name} className="flex flex-col gap-4">
                                 <span className="font-medium">{productLabel}</span>
 
                                 {hasProductRegions && regionField && !selectedRegionValue ? (
@@ -258,7 +243,10 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
                                 ) : filteredProductOptions.length === 0 ? (
                                     <p className="text-[#FFFFFF99] text-[13px]">Нет товаров для выбранного региона</p>
                                 ) : (
-                                    <div className="flex flex-wrap gap-3">
+                                    <div
+                                        className={`flex flex-wrap gap-3 rounded-[10px] ${showError ? "border border-[#F50100] p-2" : ""
+                                            }`}
+                                    >
                                         {filteredProductOptions.map((p, idx) => {
                                             const id = String(p?.value ?? "");
                                             const isActive = id !== "" && id === activeProductId;
@@ -279,6 +267,8 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
                                         })}
                                     </div>
                                 )}
+
+                                {showError && <p className="mt-1 text-[12px] text-[#F50100]">Обязательное поле</p>}
                             </div>
                         );
                     }
@@ -298,7 +288,8 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
                                         onChange={(e) =>
                                             setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
                                         }
-                                        className="outline-none p-4 w-full appearance-none rounded-[10px] border text-white bg-[#1D1D22] border-[#FFFFFF1A]"
+                                        className={`outline-none p-4 w-full appearance-none rounded-[10px] border text-white bg-[#1D1D22]
+                      ${showError ? "border-[#F50100]" : "border-[#FFFFFF1A]"}`}
                                     >
                                         <option value="" disabled>
                                             Выберите
@@ -330,6 +321,8 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
                                         />
                                     </svg>
                                 </div>
+
+                                {showError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
                             </div>
                         );
                     }
@@ -340,14 +333,14 @@ function ItemForm({ activeType, status, data, error, onTotalChange }: Props) {
                             <span className="font-medium">{field.label}</span>
                             <input
                                 id={field.name}
-                                className="outline-none p-4 rounded-[10px] mt-4 border bg-transparent text-white placeholder:text-[#7E848B] border-[#FFFFFF1A]"
+                                className={`outline-none p-4 rounded-[10px] mt-4 border bg-transparent text-white placeholder:text-[#7E848B]
+                  ${showError ? "border-[#F50100]" : "border-[#FFFFFF1A]"}`}
                                 type={getTextInputType(field.name)}
                                 placeholder={`Введите ${field.label}`}
                                 value={currentValue}
-                                onChange={(e) =>
-                                    setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                                }
+                                onChange={(e) => setValues((prev) => ({ ...prev, [field.name]: e.target.value }))}
                             />
+                            {showError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
                         </div>
                     );
                 })

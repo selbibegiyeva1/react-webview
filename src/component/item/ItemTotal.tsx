@@ -8,15 +8,39 @@ type Props = {
 
     selectedBank: string | null;
     onOpenBanks: () => void;
+
+    isConfirmed: boolean;
+    onToggleConfirm: () => void;
+
+    errors: {
+        bank: boolean;
+        confirm: boolean;
+    };
+
+    onPay: () => void;
 };
 
 function formatTmt(n: number) {
     return new Intl.NumberFormat("ru-RU").format(n);
 }
 
-function ItemTotal({ isSticky, lines, totalPrice, selectedBank, onOpenBanks }: Props) {
+function ItemTotal({
+    isSticky,
+    lines,
+    totalPrice,
+    selectedBank,
+    onOpenBanks,
+    isConfirmed,
+    onToggleConfirm,
+    errors,
+    onPay,
+}: Props) {
+    const showBankError = errors.bank;
+    const showConfirmError = errors.confirm && !isConfirmed;
+
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        onPay();
     };
 
     const totalText = totalPrice != null ? `${formatTmt(totalPrice)} TMT` : "—";
@@ -33,12 +57,13 @@ function ItemTotal({ isSticky, lines, totalPrice, selectedBank, onOpenBanks }: P
         >
             <b className={isSticky ? "hidden" : "text-[20px]"}>Оплата</b>
 
-            {/* ✅ bank select (same behavior as Steam Total) */}
+            {/* bank */}
             <div className={isSticky ? "hidden" : "mt-4"}>
                 <div
                     id="bank-select"
                     onClick={onOpenBanks}
-                    className="flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border border-[#FFFFFF1A]"
+                    className={`flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border
+            ${showBankError ? "border-[#F50100]" : "border-[#FFFFFF1A]"}`}
                 >
                     <p>{selectedBank || "Выбрать банк"}</p>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,9 +76,10 @@ function ItemTotal({ isSticky, lines, totalPrice, selectedBank, onOpenBanks }: P
                         />
                     </svg>
                 </div>
+                {showBankError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
             </div>
 
-            {/* FULL (non-sticky) details */}
+            {/* details */}
             <div className={isSticky ? "hidden" : "my-4"}>
                 {lines.map((line) => (
                     <div
@@ -83,6 +109,47 @@ function ItemTotal({ isSticky, lines, totalPrice, selectedBank, onOpenBanks }: P
                 </svg>
                 <p className="text-[14px] font-medium">Товар возврату не подлежит</p>
             </div>
+
+            {/* confirm checkbox (like Steam Total) */}
+            <button
+                id="confirm-checkbox"
+                type="button"
+                onClick={onToggleConfirm}
+                className={isSticky ? "hidden" : "mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"}
+            >
+                <div
+                    className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors
+            ${showConfirmError
+                            ? "border-[#F50100]"
+                            : isConfirmed
+                                ? "bg-[#A132C7] border-[#A132C7]"
+                                : "bg-transparent border-[#FFFFFF26]"
+                        }`}
+                >
+                    {(isConfirmed || showConfirmError) && (
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className={showConfirmError && !isConfirmed ? "hidden" : "block"}
+                        >
+                            <path
+                                d="M5 13L9 17L19 7"
+                                stroke="white"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    )}
+                </div>
+
+                <p className="text-[14px] font-medium leading-[19px] text-left">
+                    Я подтверждаю, что правильно указал все данные
+                </p>
+            </button>
 
             <button type="submit" className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60">
                 {payText}
