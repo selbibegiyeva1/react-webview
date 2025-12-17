@@ -12,12 +12,11 @@ type Props = {
     isConfirmed: boolean;
     onToggleConfirm: () => void;
 
-    errors: {
-        bank: boolean;
-        confirm: boolean;
-    };
-
+    errors: { bank: boolean; confirm: boolean };
     onPay: () => void;
+
+    payLoading?: boolean;
+    payError?: string | null;
 };
 
 function formatTmt(n: number) {
@@ -34,6 +33,8 @@ function ItemTotal({
     onToggleConfirm,
     errors,
     onPay,
+    payLoading,
+    payError
 }: Props) {
     const showBankError = errors.bank;
     const showConfirmError = errors.confirm && !isConfirmed;
@@ -44,7 +45,12 @@ function ItemTotal({
     };
 
     const totalText = totalPrice != null ? `${formatTmt(totalPrice)} TMT` : "—";
-    const payText = totalPrice != null ? `Оплатить ${formatTmt(totalPrice)} TMT` : "Оплатить";
+    const payText = payLoading
+        ? "Создаём платёж..."
+        : totalPrice != null
+            ? `Оплатить ${formatTmt(totalPrice)} TMT`
+            : "Оплатить";
+
 
     return (
         <form
@@ -57,7 +63,6 @@ function ItemTotal({
         >
             <b className={isSticky ? "hidden" : "text-[20px]"}>Оплата</b>
 
-            {/* bank */}
             <div className={isSticky ? "hidden" : "mt-4"}>
                 <div
                     id="bank-select"
@@ -79,7 +84,6 @@ function ItemTotal({
                 {showBankError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
             </div>
 
-            {/* details */}
             <div className={isSticky ? "hidden" : "my-4"}>
                 {lines.map((line) => (
                     <div
@@ -110,7 +114,6 @@ function ItemTotal({
                 <p className="text-[14px] font-medium">Товар возврату не подлежит</p>
             </div>
 
-            {/* confirm checkbox (like Steam Total) */}
             <button
                 id="confirm-checkbox"
                 type="button"
@@ -151,9 +154,19 @@ function ItemTotal({
                 </p>
             </button>
 
-            <button type="submit" className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60">
+            <button
+                type="submit"
+                disabled={payLoading}
+                className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60"
+            >
                 {payText}
             </button>
+
+            {payError && (
+                <p className="mt-3 text-[12px] text-[#F50100] text-center">
+                    {payError}
+                </p>
+            )}
 
             <div className="mt-4 text-center">
                 <p className="text-[#FFFFFF99] text-[12px] font-medium leading-4.5 max-w-[278px] mx-auto">

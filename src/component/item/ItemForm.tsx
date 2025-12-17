@@ -20,9 +20,9 @@ type Props = {
     data: GroupItemResponse | null;
     error: string | null;
     onTotalChange?: (payload: TotalPayload) => void;
-
-    // ✅ validation: key = field.name (region, account, email, product_id, etc)
     fieldErrors?: Record<string, boolean>;
+
+    onValuesChange?: (values: Record<string, string>) => void;
 };
 
 type GroupItemOption = {
@@ -70,7 +70,7 @@ function getOptionDisplay(option?: GroupItemOption | null) {
     );
 }
 
-function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors }: Props) {
+function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors, onValuesChange }: Props) {
     const [values, setValues] = useState<FormValues>({});
 
     useEffect(() => {
@@ -206,6 +206,10 @@ function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors 
             totalPrice,
         });
     }, [onTotalChange, totalLines, totalPrice]);
+
+    useEffect(() => {
+        onValuesChange?.(values);
+    }, [values, onValuesChange]);
 
     if (status === "loading" || status === "idle") {
         return <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-white">Loading…</div>;

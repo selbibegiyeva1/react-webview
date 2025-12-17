@@ -15,6 +15,7 @@ import Footer from "../component/layout/Footer";
 import { useGroupItem } from "../hooks/items/useGroupItem";
 import { useStickyScroll } from "../hooks/steam/useStickyScroll";
 import { useItemValidation } from "../hooks/items/useItemValidation";
+import { useItemAcquiringPay } from "../hooks/items/useItemAcquiringPay";
 
 function Item() {
     const { groupName } = useParams();
@@ -60,9 +61,39 @@ function Item() {
     const [banksModal, setBanksModal] = useState(false);
     const toggleBanks = () => setBanksModal((prev) => !prev);
 
+    const [formValues, setFormValues] = useState<Record<string, string>>({});
+
+    const {
+        createTopupPayment,
+        createVoucherPayment,
+        loading: acquiringLoading,
+        error: acquiringError,
+    } = useItemAcquiringPay();
+
     const handlePay = () => {
         const isValid = validatePay();
         if (!isValid) return;
+
+        if (!selectedBank) return;
+
+        // deposit === TOPUP in your UI
+        if (forcedType === "voucher") {
+            createVoucherPayment({
+                product_id: formValues.product_id,
+                email: (formValues.email || "").trim(),
+                bank: selectedBank,
+            });
+            return;
+        }
+
+        // TOPUP: dynamic payload from inputs/selects + product_id + email + bank
+        const topupPayload: Record<string, unknown> = {};
+        Object.entries(formValues).forEach(([k, v]) => {
+            topupPayload[k] = typeof v === "string" ? v.trim() : v;
+        });
+        topupPayload.bank = selectedBank;
+
+        createTopupPayment(topupPayload);
     };
 
     return (
@@ -102,6 +133,7 @@ function Item() {
                         error={error}
                         onTotalChange={setTotalPayload}
                         fieldErrors={errors.fields}
+                        onValuesChange={setFormValues}
                     />
                 </div>
 
@@ -116,6 +148,8 @@ function Item() {
                         onToggleConfirm={handleToggleConfirm}
                         errors={{ bank: errors.bank, confirm: errors.confirm }}
                         onPay={handlePay}
+                        payLoading={acquiringLoading}
+                        payError={acquiringError}
                     />
                 </div>
 
