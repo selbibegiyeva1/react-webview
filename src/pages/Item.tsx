@@ -11,12 +11,15 @@ import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
 
 import { useGroupItem } from "../hooks/items/useGroupItem";
+import { useStickyScroll } from "../hooks/steam/useStickyScroll";
 
 function Item() {
     const { groupName } = useParams();
     const { status, data, error } = useGroupItem(groupName ?? "");
 
     const [activeType, setActiveType] = useState<"deposit" | "voucher">("deposit");
+
+    const isSticky = useStickyScroll(0.7);
 
     const hasDeposit = (data?.forms?.topup_fields?.length ?? 0) > 0;
     const hasVoucher = (data?.forms?.voucher_fields?.length ?? 0) > 0;
@@ -29,7 +32,6 @@ function Item() {
 
         if (hasDeposit && !hasVoucher) return "deposit";
         if (!hasDeposit && hasVoucher) return "voucher";
-
         if (!hasDeposit && !hasVoucher) return "deposit";
 
         return activeType;
@@ -39,31 +41,15 @@ function Item() {
         if (forcedType !== activeType) setActiveType(forcedType);
     }, [forcedType, activeType]);
 
-    const fields = activeType === "voucher"
-        ? data?.forms?.voucher_fields
-        : data?.forms?.topup_fields;
-
-    const productField = (fields ?? []).find((f) => f.name === "product_id");
-    const productOptions = productField?.options ?? [];
-
-    const [activeProductId, setActiveProductId] = useState<string>("");
-
-    useEffect(() => {
-        const first = productOptions?.[0]?.value;
-        if (first == null) return;
-
-        const firstId = String(first);
-        const exists = productOptions.some((o) => String(o.value) === activeProductId);
-
-        if (!exists) setActiveProductId(firstId);
-    }, [productOptions, activeProductId]);
-
     return (
         <div className="h-full relative pt-[72px]">
-            <div className="text-white px-4 md:w-3xl md:m-auto">
-                <Search />
+            <div className="text-white md:w-3xl md:m-auto">
 
-                <div className="flex items-center gap-2.5 mb-4 font-medium text-[#969FA8]">
+                <div className="px-4">
+                    <Search />
+                </div>
+
+                <div className="flex items-center gap-2.5 mb-4 px-4 font-medium text-[#969FA8]">
 
                     <Link to='/' className="flex items-center gap-2.5">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -100,9 +86,11 @@ function Item() {
                     <span className="text-white">Продукт</span>
                 </div>
 
-                <ItemBanner status={status} data={data} error={error} />
+                <div className="px-4">
+                    <ItemBanner status={status} data={data} error={error} />
+                </div>
 
-                <div className="my-4">
+                <div className="my-4 px-4">
                     <ItemPayOption
                         activeType={activeType}
                         onChange={setActiveType}
@@ -112,15 +100,15 @@ function Item() {
                     />
                 </div>
 
-                <div className="my-4">
+                <div className="my-4 px-4">
                     <ItemForm activeType={forcedType} status={status} data={data} error={error} />
                 </div>
 
-                <div className="my-4">
-                    <ItemTotal />
+                <div className={`my-4 ${isSticky ? "sticky bottom-0 z-50" : "px-4"}`}>
+                    <ItemTotal isSticky={isSticky} />
                 </div>
 
-                <div className="my-4">
+                <div className="my-4 px-4">
                     <Faq />
                 </div>
             </div>
