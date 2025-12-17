@@ -1,12 +1,34 @@
 import { useEffect, useState } from "react";
 
+export type GroupItemOption = {
+    value: string | number;
+    name?: string;
+    product?: string;
+    price?: number;
+    region?: string;
+    name_prefix?: string;
+    type?: string;
+};
+
+export type GroupItemField = {
+    name: string;
+    type: "text" | "options";
+    label: string;
+    options?: GroupItemOption[];
+};
+
+export type GroupItemForms = {
+    voucher_fields?: GroupItemField[] | null;
+    topup_fields?: GroupItemField[] | null;
+};
+
 export type GroupItemResponse = {
     icon?: string;
     group?: string;
     short_info?: string;
     image?: string;
     category?: string;
-    forms?: unknown;
+    forms?: GroupItemForms | null;
 };
 
 type Status = "idle" | "loading" | "success" | "error";
