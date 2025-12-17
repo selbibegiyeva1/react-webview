@@ -268,7 +268,7 @@ function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors 
                                     </div>
                                 )}
 
-                                {showError && <p className="mt-1 text-[12px] text-[#F50100]">Обязательное поле</p>}
+                                {showError && <p className="text-[12px] text-[#F50100]">Обязательное поле</p>}
                             </div>
                         );
                     }
