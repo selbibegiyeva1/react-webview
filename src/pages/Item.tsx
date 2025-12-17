@@ -6,9 +6,9 @@ import ItemBanner from "../component/item/ItemBanner";
 import ItemForm from "../component/item/ItemForm";
 import ItemPayOption from "../component/item/ItemPayOption";
 import type { TotalPayload } from "../component/item/ItemForm";
-
 import ItemTotal from "../component/item/ItemTotal";
 
+import Banks from "../component/steam/Banks";
 import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
 
@@ -20,7 +20,6 @@ function Item() {
     const { status, data, error } = useGroupItem(groupName ?? "");
 
     const [activeType, setActiveType] = useState<"deposit" | "voucher">("deposit");
-
     const isSticky = useStickyScroll(0.7);
 
     const hasDeposit = (data?.forms?.topup_fields?.length ?? 0) > 0;
@@ -48,17 +47,21 @@ function Item() {
         totalPrice: null,
     });
 
+    // ✅ banks (same as Steam)
+    const [banksModal, setBanksModal] = useState(false);
+    const [selectedBank, setSelectedBank] = useState<string | null>(null);
+
+    const toggleBanks = () => setBanksModal((prev) => !prev);
+
     return (
         <div className="h-full relative pt-[72px]">
             <div className="text-white md:w-3xl md:m-auto">
-
                 <div className="px-4">
                     <Search />
                 </div>
 
                 <div className="flex items-center gap-2.5 mb-4 px-4 font-medium text-[#969FA8]">
-
-                    <Link to='/' className="flex items-center gap-2.5">
+                    <Link to="/" className="flex items-center gap-2.5">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <mask id="mask0_196_3268" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
                                 <path d="M24 0H0V24H24V0Z" fill="white" />
@@ -77,6 +80,7 @@ function Item() {
                         </svg>
                         <span>Главная</span>
                     </Link>
+
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_196_3284" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
                             <path d="M24 0H0V24H24V0Z" fill="white" />
@@ -86,10 +90,14 @@ function Item() {
                                 <path d="M24 0H0V24H24V0Z" fill="white" />
                             </mask>
                             <g mask="url(#mask1_196_3284)">
-                                <path d="M9 5.01246C9 4.11226 10.0766 3.66144 10.7062 4.29798L13.8016 7.4273C15.9339 9.58289 17 10.6607 17 12C17 13.3393 15.9339 14.4171 13.8016 16.5727L10.7062 19.702C10.0766 20.3386 9 19.8877 9 18.9875C9 18.7196 9.1053 18.4625 9.29274 18.2731L12.3882 15.1437C13.4942 14.0255 14.1786 13.3276 14.6112 12.7544C15.0016 12.2371 15.0012 12.0565 15.001 12.0028V12V11.9973C15.0012 11.9435 15.0016 11.7629 14.6112 11.2456C14.1786 10.6724 13.4942 9.97446 12.3882 8.85627L9.29274 5.72695C9.1053 5.53745 9 5.28044 9 5.01246Z" fill="#969FA8" />
+                                <path
+                                    d="M9 5.01246C9 4.11226 10.0766 3.66144 10.7062 4.29798L13.8016 7.4273C15.9339 9.58289 17 10.6607 17 12C17 13.3393 15.9339 14.4171 13.8016 16.5727L10.7062 19.702C10.0766 20.3386 9 19.8877 9 18.9875C9 18.7196 9.1053 18.4625 9.29274 18.2731L12.3882 15.1437C13.4942 14.0255 14.1786 13.3276 14.6112 12.7544C15.0016 12.2371 15.0012 12.0565 15.001 12.0028V12V11.9973C15.0012 11.9435 15.0016 11.7629 14.6112 11.2456C14.1786 10.6724 13.4942 9.97446 12.3882 8.85627L9.29274 5.72695C9.1053 5.53745 9 5.28044 9 5.01246Z"
+                                    fill="#969FA8"
+                                />
                             </g>
                         </g>
                     </svg>
+
                     <span className="text-white">Продукт</span>
                 </div>
 
@@ -109,7 +117,7 @@ function Item() {
 
                 <div className="my-4 px-4">
                     <ItemForm
-                        activeType={forcedType /* or activeType */}
+                        activeType={forcedType}
                         status={status}
                         data={data}
                         error={error}
@@ -122,16 +130,27 @@ function Item() {
                         isSticky={isSticky}
                         lines={totalPayload.lines}
                         totalPrice={totalPayload.totalPrice}
+                        selectedBank={selectedBank}
+                        onOpenBanks={toggleBanks}
                     />
                 </div>
 
                 <div className="my-4 px-4">
                     <Faq />
                 </div>
+
+                {/* ✅ Banks modal (same as Steam) */}
+                <Banks
+                    click={toggleBanks}
+                    modal={banksModal}
+                    value={selectedBank}
+                    onChange={setSelectedBank}
+                />
             </div>
+
             <Footer />
         </div>
-    )
+    );
 }
 
-export default Item
+export default Item;

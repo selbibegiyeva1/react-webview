@@ -5,13 +5,16 @@ type Props = {
     isSticky: boolean;
     lines: TotalLine[];
     totalPrice: number | null;
+
+    selectedBank: string | null;
+    onOpenBanks: () => void;
 };
 
 function formatTmt(n: number) {
     return new Intl.NumberFormat("ru-RU").format(n);
 }
 
-function ItemTotal({ isSticky, lines, totalPrice }: Props) {
+function ItemTotal({ isSticky, lines, totalPrice, selectedBank, onOpenBanks }: Props) {
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
     };
@@ -30,12 +33,14 @@ function ItemTotal({ isSticky, lines, totalPrice }: Props) {
         >
             <b className={isSticky ? "hidden" : "text-[20px]"}>Оплата</b>
 
+            {/* ✅ bank select (same behavior as Steam Total) */}
             <div className={isSticky ? "hidden" : "mt-4"}>
                 <div
                     id="bank-select"
+                    onClick={onOpenBanks}
                     className="flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border border-[#FFFFFF1A]"
                 >
-                    <p>Выбрать банк</p>
+                    <p>{selectedBank || "Выбрать банк"}</p>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9"
@@ -78,36 +83,6 @@ function ItemTotal({ isSticky, lines, totalPrice }: Props) {
                 </svg>
                 <p className="text-[14px] font-medium">Товар возврату не подлежит</p>
             </div>
-
-            <button
-                id="confirm-checkbox"
-                type="button"
-                className={isSticky ? "hidden" : "mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"}
-            >
-                <div
-                    className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors bg-[#A132C7] border-[#A132C7]`}
-                >
-                    <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M5 13L9 17L19 7"
-                            stroke="white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </div>
-
-                <p className="text-[14px] font-medium leading-[19px] text-left">
-                    Я подтверждаю, что правильно указал все данные
-                </p>
-            </button>
 
             <button type="submit" className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60">
                 {payText}
