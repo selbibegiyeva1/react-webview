@@ -16,6 +16,7 @@ type GroupItemOption = {
     product?: string;
     name_prefix?: string;
     price?: number;
+    region?: string;
     [k: string]: unknown;
 };
 
@@ -70,25 +71,87 @@ function ItemForm({ activeType, status, data, error }: Props) {
 
     const title = activeType === "voucher" ? "Ваучер" : "Пополнение аккаунта";
 
+    const regionField = useMemo(() => {
+        return fields.find((f) => f?.name === "region" && f?.type === "options");
+    }, [fields]);
+
+    const regionOptions = useMemo(() => {
+        const opts = regionField?.options;
+        return Array.isArray(opts) ? (opts as GroupItemOption[]) : [];
+    }, [regionField]);
+
+    const selectedRegionValue = values["region"] ?? "";
+
+    const selectedRegionName = useMemo(() => {
+        if (!selectedRegionValue) return "";
+        const match = regionOptions.find((o) => String(o.value) === String(selectedRegionValue));
+        return (match?.name ?? "").trim() || String(selectedRegionValue);
+    }, [selectedRegionValue, regionOptions]);
+
     const productField = useMemo(() => {
         return fields.find((f) => f?.name === "product_id" && f?.type === "options");
     }, [fields]);
 
     const productLabel = productField?.label ?? "Товары";
-    const productOptions = (Array.isArray(productField?.options) ? productField?.options : []) as GroupItemOption[];
+
+    const allProductOptions = useMemo(() => {
+        const opts = productField?.options;
+        return Array.isArray(opts) ? (opts as GroupItemOption[]) : [];
+    }, [productField]);
+
+    const hasProductRegions = useMemo(() => {
+        return allProductOptions.some((p) => typeof p.region === "string" && p.region.trim());
+    }, [allProductOptions]);
+
+    const filteredProductOptions = useMemo(() => {
+        if (!allProductOptions.length) return [];
+
+        if (!hasProductRegions || !regionField) return allProductOptions;
+
+        if (!selectedRegionValue) return [];
+
+        return allProductOptions.filter((p) => {
+            const pr = (p.region ?? "").toString().trim();
+            if (!pr) return false;
+
+            return pr === selectedRegionName || pr === String(selectedRegionValue);
+        });
+    }, [
+        allProductOptions,
+        hasProductRegions,
+        regionField,
+        selectedRegionValue,
+        selectedRegionName,
+    ]);
+
     const activeProductId = values["product_id"] ?? "";
 
     useEffect(() => {
-        if (!productOptions.length) return;
+        if (!productField) return;
+
+        if (hasProductRegions && regionField && !selectedRegionValue) {
+            if (values["product_id"]) {
+                setValues((prev) => ({ ...prev, product_id: "" }));
+            }
+            return;
+        }
+
+        if (filteredProductOptions.length === 0) {
+            if (values["product_id"]) {
+                setValues((prev) => ({ ...prev, product_id: "" }));
+            }
+            return;
+        }
 
         const current = values["product_id"];
         const isValid =
-            typeof current === "string" && productOptions.some((o) => String(o.value) === current);
+            typeof current === "string" &&
+            filteredProductOptions.some((o) => String(o.value) === current);
 
         if (!isValid) {
-            setValues((prev) => ({ ...prev, product_id: String(productOptions[0].value) }));
+            setValues((prev) => ({ ...prev, product_id: String(filteredProductOptions[0].value) }));
         }
-    }, [productOptions]);
+    }, [filteredProductOptions, selectedRegionValue, productField]);
 
     if (status === "loading" || status === "idle") {
         return <div className="px-5 py-8 bg-[#1D1D22] rounded-4xl text-white">Loading…</div>;
@@ -113,106 +176,114 @@ function ItemForm({ activeType, status, data, error }: Props) {
             {fields.length === 0 ? (
                 <p className="text-[#FFFFFF99] text-[13px]">Нет полей для этого типа</p>
             ) : (
-                fields
-                    .filter((f) => !(f.name === "product_id" && f.type === "options"))
-                    .map((field) => {
-                        const currentValue = values[field.name] ?? "";
+                fields.map((field) => {
+                    const currentValue = values[field.name] ?? "";
 
-                        if (field.type === "options") {
-                            const options = Array.isArray(field.options) ? (field.options as GroupItemOption[]) : [];
+                    if (field.name === "product_id" && field.type === "options") {
+                        return (
+                            <div key={field.name} className="flex flex-col gap-4">
+                                <span className="font-medium">{productLabel}</span>
 
-                            return (
-                                <div key={field.name} className="flex flex-col">
-                                    <span className="font-medium">{field.label}</span>
+                                {hasProductRegions && regionField && !selectedRegionValue ? (
+                                    <p className="text-[#FFFFFF99] text-[13px]">
+                                        Выберите регион, чтобы увидеть товары
+                                    </p>
+                                ) : filteredProductOptions.length === 0 ? (
+                                    <p className="text-[#FFFFFF99] text-[13px]">
+                                        Нет товаров для выбранного региона
+                                    </p>
+                                ) : (
+                                    <div className="flex flex-wrap gap-3">
+                                        {filteredProductOptions.map((p, idx) => {
+                                            const id = String(p?.value ?? "");
+                                            const isActive = id !== "" && id === activeProductId;
 
-                                    <div className="mt-3 relative">
-                                        <select
-                                            id={field.name}
-                                            value={currentValue}
-                                            onChange={(e) =>
-                                                setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                                            }
-                                            className={`outline-none p-4 w-full appearance-none rounded-[10px] border bg-transparent border-[#FFFFFF1A]
-                        ${currentValue ? "text-white" : "text-[#7E848B]"}`}
-                                        >
-                                            <option value="" disabled>
-                                                Выберите
-                                            </option>
-                                            {options.map((option, idx) => (
-                                                <option
-                                                    key={`${field.name}-${String(option?.value ?? idx)}-${idx}`}
-                                                    value={String(option?.value ?? "")}
+                                            return (
+                                                <button
+                                                    key={`${id}-${idx}`}
+                                                    type="button"
+                                                    onClick={() => setValues((prev) => ({ ...prev, product_id: id }))}
+                                                    className={`py-[11.5px] px-6 cursor-pointer rounded-[10px] text-[14px] font-bold transition-colors 
+                            ${isActive ? "bg-[#A132C7]" : "bg-[#2E2E31]"}`}
                                                 >
-                                                    {getOptionLabel(option)}
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        <svg
-                                            className="absolute top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9"
-                                                stroke="white"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
+                                                    <div className="flex flex-col items-start text-left">
+                                                        <span className="leading-5">{getProductTitle(p)}</span>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
-                                </div>
-                            );
-                        }
+                                )}
+                            </div>
+                        );
+                    }
+
+                    if (field.type === "options") {
+                        const options = Array.isArray(field.options) ? (field.options as GroupItemOption[]) : [];
 
                         return (
                             <div key={field.name} className="flex flex-col">
                                 <span className="font-medium">{field.label}</span>
-                                <input
-                                    id={field.name}
-                                    className="outline-none p-4 rounded-[10px] mt-3 border bg-transparent text-white placeholder:text-[#7E848B] border-[#FFFFFF1A]"
-                                    type={getTextInputType(field.name)}
-                                    placeholder={`Введите ${field.label}`}
-                                    value={currentValue}
-                                    onChange={(e) =>
-                                        setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
-                                    }
-                                />
+
+                                <div className="mt-4 relative">
+                                    <select
+                                        id={field.name}
+                                        value={currentValue}
+                                        onChange={(e) =>
+                                            setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                                        }
+                                        className="outline-none p-4 w-full appearance-none rounded-[10px] border text-white bg-[#1D1D22] border-[#FFFFFF1A]"
+                                    >
+                                        <option value="" disabled>
+                                            Выберите
+                                        </option>
+                                        {options.map((option, idx) => (
+                                            <option
+                                                key={`${field.name}-${String(option?.value ?? idx)}-${idx}`}
+                                                value={String(option?.value ?? "")}
+                                            >
+                                                {getOptionLabel(option)}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <svg
+                                        className="absolute top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9"
+                                            stroke="white"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </div>
                             </div>
                         );
-                    })
+                    }
 
-            )}
-
-            {productOptions.length > 0 && (
-                <div className="flex flex-col gap-4">
-                    <span className="font-medium">{productLabel}</span>
-
-                    <div className="flex flex-wrap gap-3">
-                        {productOptions.map((p, idx) => {
-                            const id = String(p?.value ?? "");
-                            const isActive = id !== "" && id === activeProductId;
-
-                            return (
-                                <button
-                                    key={`${id}-${idx}`}
-                                    type="button"
-                                    onClick={() => setValues((prev) => ({ ...prev, product_id: id }))}
-                                    className={`py-[11.5px] px-6 cursor-pointer rounded-[10px] text-[14px] font-bold transition-colors
-                    ${isActive ? "bg-[#A132C7]" : "bg-[#2E2E31]"}`}
-                                >
-                                    <div className="flex flex-col items-start text-left">
-                                        <span className="leading-5">{getProductTitle(p)}</span>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                    return (
+                        <div key={field.name} className="flex flex-col">
+                            <span className="font-medium">{field.label}</span>
+                            <input
+                                id={field.name}
+                                className="outline-none p-4 rounded-[10px] mt-4 border bg-transparent text-white placeholder:text-[#7E848B] border-[#FFFFFF1A]"
+                                type={getTextInputType(field.name)}
+                                placeholder={`Введите ${field.label}`}
+                                value={currentValue}
+                                onChange={(e) =>
+                                    setValues((prev) => ({ ...prev, [field.name]: e.target.value }))
+                                }
+                            />
+                        </div>
+                    );
+                })
             )}
         </div>
     );
