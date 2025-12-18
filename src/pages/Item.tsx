@@ -23,7 +23,7 @@ function Item() {
     const { status, data, error } = useGroupItem(groupName ?? "");
 
     const [activeType, setActiveType] = useState<"deposit" | "voucher">("deposit");
-    const isSticky = useStickyScroll(0.7);
+    const isSticky = useStickyScroll(0.4);
 
     const hasDeposit = (data?.forms?.topup_fields?.length ?? 0) > 0;
     const hasVoucher = (data?.forms?.voucher_fields?.length ?? 0) > 0;

@@ -66,7 +66,7 @@ function Steam() {
                 : validatePay({ type: "deposit" }),
     });
 
-    const isSticky = useStickyScroll(0.7);
+    const isSticky = useStickyScroll(0.8);
     const modalFunc = () => setModal((prev) => !prev);
     const bankFunc = () => setBanks((prev) => !prev);
 

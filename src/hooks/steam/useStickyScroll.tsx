@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useStickyScroll(thresholdRatio: number = 0.8) {
+export function useStickyScroll(thresholdRatio: number = 0.5) {
     const [isSticky, setIsSticky] = useState(true);
 
     useEffect(() => {
