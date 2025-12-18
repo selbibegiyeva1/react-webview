@@ -27,16 +27,13 @@ function Steam() {
     const [banks, setBanks] = useState(false);
 
     const [activeType, setActiveType] = useState<SteamPayType>("deposit");
-
     const [amountTmt, setAmountTmt] = useState<number>(20);
     const [region, setRegion] = useState<string>("СНГ");
-
     const [voucherValues, setVoucherValues] = useState<Record<string, string>>({});
     const [voucherTotal, setVoucherTotal] = useState<VoucherTotalPayload>({ lines: [], totalPrice: null });
 
     const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
     const { fields: voucherFields, loading: voucherLoading, error: voucherError } = useSteamVoucherFields(activeType === "voucher");
-
     const {
         login,
         email,
@@ -72,6 +69,32 @@ function Steam() {
     const isSticky = useStickyScroll(0.7);
     const modalFunc = () => setModal((prev) => !prev);
     const bankFunc = () => setBanks((prev) => !prev);
+
+    const commonTotalProps = {
+        click: bankFunc,
+        selectedBank,
+        isConfirmed,
+        onToggleConfirm: handleToggleConfirm,
+        errors: { bank: errors.bank, confirm: errors.confirm },
+        onPay: pay,
+        isSticky,
+        acquiringError,
+        acquiringLoading,
+    } as const;
+
+    const modeTotalProps = activeType === "deposit" ? ({
+        mode: "deposit",
+        steamAmountUsd: usdAmount,
+        isSteamRateLoading: steamRateLoading,
+        region,
+        login,
+        email,
+        amountTmt,
+    } as const) : ({
+        mode: "voucher",
+        lines: voucherTotal.lines,
+        totalPrice: voucherTotal.totalPrice,
+    } as const);
 
     return (
         <div className="h-full relative pt-[72px]">
@@ -129,41 +152,7 @@ function Steam() {
                 </div>
 
                 <div className={`my-4 ${isSticky ? "sticky bottom-0" : "px-4"}`}>
-                    {activeType === "deposit" ? (
-                        <Total
-                            mode="deposit"
-                            click={bankFunc}
-                            selectedBank={selectedBank}
-                            isConfirmed={isConfirmed}
-                            onToggleConfirm={handleToggleConfirm}
-                            errors={{ bank: errors.bank, confirm: errors.confirm }}
-                            onPay={pay}
-                            isSticky={isSticky}
-                            steamAmountUsd={usdAmount}
-                            isSteamRateLoading={steamRateLoading}
-                            region={region}
-                            login={login}
-                            email={email}
-                            amountTmt={amountTmt}
-                            acquiringError={acquiringError}
-                            acquiringLoading={acquiringLoading}
-                        />
-                    ) : (
-                        <Total
-                            mode="voucher"
-                            click={bankFunc}
-                            selectedBank={selectedBank}
-                            isConfirmed={isConfirmed}
-                            onToggleConfirm={handleToggleConfirm}
-                            errors={{ bank: errors.bank, confirm: errors.confirm }}
-                            onPay={pay}
-                            isSticky={isSticky}
-                            lines={voucherTotal.lines}
-                            totalPrice={voucherTotal.totalPrice}
-                            acquiringError={acquiringError}
-                            acquiringLoading={acquiringLoading}
-                        />
-                    )}
+                    <Total {...commonTotalProps} {...modeTotalProps} />
                 </div>
 
                 <div className="my-4 px-4">

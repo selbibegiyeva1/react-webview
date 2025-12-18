@@ -217,7 +217,6 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
                     const currentValue = values[field.name] ?? "";
                     const showError = !!fieldErrors?.[field.name];
 
-                    // product_id as purple buttons
                     if (field.name === "product_id" && field.type === "options") {
                         return (
                             <div key={field.name} id={field.name} className="flex flex-col gap-4">
@@ -257,7 +256,6 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
                         );
                     }
 
-                    // options -> select
                     if (field.type === "options") {
                         const options = Array.isArray(field.options) ? (field.options as VoucherOption[]) : [];
 
@@ -309,7 +307,6 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
                         );
                     }
 
-                    // text -> input
                     return (
                         <div key={field.name} className="flex flex-col">
                             <span className="font-medium">{field.label}</span>
