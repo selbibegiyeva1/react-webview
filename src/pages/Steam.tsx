@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Search from "../component/home/Search";
 import Modal from "../component/steam/Modal";
 import Banks from "../component/steam/Banks";
-import ScrollUp from "../component/scrollUp";
+import UpButton from "../component/UpButton";
 
 import Banner from "../component/steam/Banner";
 import PayOption from "../component/steam/PayOption";
@@ -169,7 +169,7 @@ function Steam() {
             </div>
 
             <Footer />
-            <ScrollUp />
+            <UpButton />
         </div>
     );
 }

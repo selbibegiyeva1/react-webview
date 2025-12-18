@@ -5,7 +5,7 @@ import Grid2 from "../component/home/Grid2"
 import Faq from "../component/home/Faq"
 import Footer from "../component/layout/Footer"
 
-import ScrollUp from "../component/scrollUp"
+import UpButton from "../component/UpButton"
 
 function Home() {
     return (
@@ -26,7 +26,7 @@ function Home() {
             </div>
 
             <Footer />
-            <ScrollUp />
+            <UpButton />
         </div>
     )
 }

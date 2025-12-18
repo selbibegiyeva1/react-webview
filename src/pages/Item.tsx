@@ -11,7 +11,7 @@ import ItemTotal from "../component/item/ItemTotal";
 import Banks from "../component/steam/Banks";
 import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
-import ScrollUp from "../component/scrollUp";
+import UpButton from "../component/UpButton"
 
 import { useGroupItem } from "../hooks/items/useGroupItem";
 import { useStickyScroll } from "../hooks/steam/useStickyScroll";
@@ -161,7 +161,7 @@ function Item() {
             </div>
 
             <Footer />
-            <ScrollUp />
+            <UpButton />
         </div>
     );
 }
