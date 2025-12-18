@@ -99,19 +99,10 @@ function Total(props: TotalProps) {
                 <div
                     id="bank-select"
                     onClick={click}
-                    className={`flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border ${showBankError ? "border-[#F50100]" : "border-[#FFFFFF1A]"
-                        }`}
+                    className={`flex items-center justify-between px-3 py-4 rounded-[10px] bg-[#2E2E31] cursor-pointer border ${showBankError ? "border-[#F50100]" : "border-[#FFFFFF1A]"}`}
                 >
                     <p>{selectedBank || "Выбрать банк"}</p>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9"
-                            stroke="white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
+                    <img src="/steam/arrow_down.png" className="w-5" alt="arrow_down" />
                 </div>
                 {showBankError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
             </div>
@@ -160,15 +151,7 @@ function Total(props: TotalProps) {
             </div>
 
             <div className={isSticky ? "hidden" : "mb-4 bg-[#2F2F36] flex items-center gap-2.5 px-4 py-3 rounded-[10px]"}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M12 16H12.01M12 8V12M9 4H15L20 9V15L15 20H9L4 15V9L9 4Z"
-                        stroke="#F50100"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                </svg>
+                <img src="/steam/report.png" alt="report" className="w-6" />
                 <p className="text-[14px] font-medium">Товар возврату не подлежит</p>
             </div>
 
@@ -188,10 +171,10 @@ function Total(props: TotalProps) {
             >
                 <div
                     className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors ${showConfirmError
-                            ? "border-[#F50100]"
-                            : isConfirmed
-                                ? "bg-[#A132C7] border-[#A132C7]"
-                                : "bg-transparent border-[#FFFFFF26]"
+                        ? "border-[#F50100]"
+                        : isConfirmed
+                            ? "bg-[#A132C7] border-[#A132C7]"
+                            : "bg-transparent border-[#FFFFFF26]"
                         }`}
                 >
                     {(isConfirmed || showConfirmError) && (

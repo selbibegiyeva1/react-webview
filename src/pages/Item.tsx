@@ -63,12 +63,7 @@ function Item() {
 
     const [formValues, setFormValues] = useState<Record<string, string>>({});
 
-    const {
-        createTopupPayment,
-        createVoucherPayment,
-        loading: acquiringLoading,
-        error: acquiringError,
-    } = useItemAcquiringPay();
+    const { createTopupPayment, createVoucherPayment, loading: acquiringLoading, error: acquiringError } = useItemAcquiringPay();
 
     const handlePay = () => {
         const isValid = validatePay();
@@ -76,7 +71,6 @@ function Item() {
 
         if (!selectedBank) return;
 
-        // deposit === TOPUP in your UI
         if (forcedType === "voucher") {
             createVoucherPayment({
                 product_id: formValues.product_id,
@@ -86,7 +80,6 @@ function Item() {
             return;
         }
 
-        // TOPUP: dynamic payload from inputs/selects + product_id + email + bank
         const topupPayload: Record<string, unknown> = {};
         Object.entries(formValues).forEach(([k, v]) => {
             topupPayload[k] = typeof v === "string" ? v.trim() : v;
@@ -105,7 +98,6 @@ function Item() {
 
                 <div className="flex items-center gap-2.5 mb-4 px-4 font-medium text-[#969FA8]">
                     <Link to="/" className="flex items-center gap-2.5">
-                        {/* (same svg as you already have) */}
                         <span>Главная</span>
                     </Link>
                     <span className="text-white">Продукт</span>

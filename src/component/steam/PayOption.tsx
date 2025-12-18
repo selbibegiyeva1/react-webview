@@ -3,20 +3,15 @@ import { useEffect, useState } from "react";
 interface PayOptionProps {
     activeType: "deposit" | "voucher";
     onChangeType: (type: "deposit" | "voucher") => void;
-
     onChangeAmount: (amountTmt: number) => void;
     region: string;
     onChangeRegion: (region: string) => void;
 }
 
-function PayOption({
-    activeType,
-    onChangeType,
-    onChangeAmount,
-    region,
-    onChangeRegion,
-}: PayOptionProps) {
+function PayOption({ activeType, onChangeType, onChangeAmount, region, onChangeRegion }: PayOptionProps) {
     const nominals = [20, 40, 100, 150, 200, 500, 1000];
+
+    const [toltip, setToltip] = useState(false);
     const [activeNominal, setActiveNominal] = useState<number>(nominals[0]);
 
     useEffect(() => {
@@ -28,7 +23,6 @@ function PayOption({
         setActiveNominal(nominal);
     };
 
-    const [toltip, setToltip] = useState(false);
     const toltipFunc = () => setToltip((prev) => !prev);
 
     return (
@@ -72,45 +66,21 @@ function PayOption({
                                 <option>Россия</option>
                             </select>
 
-                            <svg
-                                className="absolute top-[50%] right-2.5 pointer-events-none translate-x-[-50%] translate-y-[-50%]"
-                                width="20"
-                                height="20"
-                                viewBox="0 0 20 20"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M3.33366 6.66699L10.0003 13.3337L16.667 6.66699"
-                                    stroke="white"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
+                            <img
+                                src="/steam/arrow_down.png"
+                                className="absolute w-5 top-[50%] right-2.5 pointer-events-none translate-x-[-50%] translate-y-[-50%]"
+                                alt="arrow_down"
+                            />
 
                             {region === "СНГ" && (
                                 <div className="absolute top-[50%] left-20 translate-x-[-50%] translate-y-[-50%]">
                                     <div className="relative">
-                                        <svg
+                                        <img
+                                            src="/steam/help.png"
+                                            className="cursor-pointer w-5"
+                                            alt="help"
                                             onClick={toltipFunc}
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 20 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="cursor-pointer"
-                                        >
-                                            <rect width="20" height="20" rx="6" fill="#2F2F36" />
-                                            <path
-                                                d="M10 7.66667V7.95833M10 10V12.3333M10 15.25C12.8995 15.25 15.25 12.8995 15.25 10C15.25 7.1005 12.8995 4.75 10 4.75C7.1005 4.75 4.75 7.1005 4.75 10C4.75 12.8995 7.1005 15.25 10 15.25Z"
-                                                stroke="white"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            />
-                                        </svg>
-
+                                        />
                                         <p
                                             className={`bg-[#2F2F36] text-[14px] font-medium p-4 rounded-2xl w-[300px] absolute top-[50px] -left-20 shadow-2xl ${toltip ? "block" : "hidden"
                                                 }`}

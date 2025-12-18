@@ -144,7 +144,6 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
         if (!isValid) {
             setValues((prev) => ({ ...prev, product_id: String(filteredProductOptions[0].value) }));
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filteredProductOptions, selectedRegionValue, productField]);
 
     const selectedProduct = useMemo(() => {
@@ -161,7 +160,6 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
         if (!fields.length) return [];
 
         return fields.map((f) => {
-            // product_id -> show product title
             if (f.name === "product_id" && f.type === "options") {
                 return {
                     key: "product_id",
@@ -268,8 +266,7 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
                                         id={field.name}
                                         value={currentValue}
                                         onChange={(e) => setFieldValue(field.name, e.target.value)}
-                                        className={`outline-none p-4 w-full appearance-none rounded-[10px] border text-white bg-[#1D1D22] ${showError ? "border-[#F50100]" : "border-[#FFFFFF1A]"
-                                            }`}
+                                        className={`outline-none p-4 w-full appearance-none rounded-[10px] border text-white bg-[#1D1D22] ${showError ? "border-[#F50100]" : "border-[#FFFFFF1A]"}`}
                                     >
                                         <option value="" disabled>
                                             Выберите
@@ -283,23 +280,11 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
                                             </option>
                                         ))}
                                     </select>
-
-                                    <svg
-                                        className="absolute top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9"
-                                            stroke="white"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
+                                    <img
+                                        src="/steam/arrow_down.png"
+                                        alt="arrow_down"
+                                        className="absolute w-5 top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
+                                    />
                                 </div>
 
                                 {showError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
@@ -312,8 +297,7 @@ function SteamVoucherForm({ fields, fieldErrors, onValuesChange, onTotalChange, 
                             <span className="font-medium">{field.label}</span>
                             <input
                                 id={field.name}
-                                className={`outline-none p-4 rounded-[10px] mt-4 border bg-transparent text-white placeholder:text-[#7E848B] ${showError ? "border-[#F50100]" : "border-[#FFFFFF1A]"
-                                    }`}
+                                className={`outline-none p-4 rounded-[10px] mt-4 border bg-transparent text-white placeholder:text-[#7E848B] ${showError ? "border-[#F50100]" : "border-[#FFFFFF1A]"}`}
                                 type={getTextInputType(field.name)}
                                 placeholder={`Введите ${field.label}`}
                                 value={currentValue}

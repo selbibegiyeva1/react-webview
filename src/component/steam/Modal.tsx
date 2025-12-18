@@ -23,24 +23,7 @@ function Modal({ click, modal }: ModalProps) {
                 >
                     <div className="flex items-center justify-between">
                         <p className="font-medium text-[20px]">Как найти свой логин в Steam?</p>
-                        <svg
-                            onClick={click}
-                            width="32"
-                            height="32"
-                            viewBox="0 0 32 32"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="cursor-pointer"
-                        >
-                            <rect width="32" height="32" rx="8" fill="#5B5B66" />
-                            <path
-                                d="M10 10L22 22M22 10L10 22"
-                                stroke="white"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
+                        <img src="/steam/cross.png" alt="cross" className="w-8 cursor-pointer" onClick={click} />
                     </div>
 
                     <ul className="mt-2 mb-6 flex flex-col gap-4 text-[14px] rounded-tl-4xl rounded-tr-4xl bg-transparent list-disc pl-5 font-light max-w-[334px] marker:text-[#8016A4]">
