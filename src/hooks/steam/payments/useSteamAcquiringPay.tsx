@@ -1,9 +1,7 @@
 import { useCallback, useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
 const STEAM_ACQUIRING_URL = `${API_BASE}${import.meta.env.VITE_STEAM_ACQUIRING_ENDPOINT}`;
-
 const VOUCHER_ACQUIRING_URL = `${API_BASE}${import.meta.env.VITE_VOUCHER_ACQUIRING_ENDPOINT}`;
 
 type AcquiringResponse = {
@@ -71,7 +69,6 @@ export function useSteamAcquiringPay() {
         [postAcquiring]
     );
 
-    // Voucher payload is dynamic (depends on voucher_fields).
     const createVoucherPayment = useCallback(
         async (payload: Record<string, unknown>) => {
             await postAcquiring(VOUCHER_ACQUIRING_URL, payload);

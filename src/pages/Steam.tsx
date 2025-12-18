@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Search from "../component/home/Search";
@@ -8,22 +8,16 @@ import Banks from "../component/steam/Banks";
 import Banner from "../component/steam/Banner";
 import PayOption from "../component/steam/PayOption";
 import Form from "../component/steam/Form";
+import SteamVoucherForm, { type TotalPayload as VoucherTotalPayload } from "../component/steam/SteamVoucherForm";
 import Total from "../component/steam/Total";
-import SteamVoucherForm, {
-    type TotalPayload as VoucherTotalPayload,
-    type VoucherField,
-} from "../component/steam/SteamVoucherForm";
 import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
 
 import { useStickyScroll } from "../hooks/steam/useStickyScroll";
 import { useSteamValidation } from "../hooks/steam/useSteamValidation";
 import { useSteamRate } from "../hooks/steam/useSteamRate";
-import { useSteamAcquiringPay } from "../hooks/steam/useSteamAcquiringPay";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-const VOUCHER_ENDPOINT = import.meta.env.VITE_STEAM_VOUCHER_ENDPOINT;
-const STEAM_FORMS_URL = `${API_BASE}${VOUCHER_ENDPOINT}`;
+import { useSteamPayHandler } from "../hooks/steam/payments/useSteamPayHandler";
+import { useSteamVoucherFields } from "../hooks/steam/useSteamVoucherFields";
 
 type SteamPayType = "deposit" | "voucher";
 
@@ -36,14 +30,11 @@ function Steam() {
     const [amountTmt, setAmountTmt] = useState<number>(20);
     const [region, setRegion] = useState<string>("СНГ");
 
-    const [voucherFields, setVoucherFields] = useState<VoucherField[]>([]);
-    const [voucherLoading, setVoucherLoading] = useState(false);
-    const [voucherError, setVoucherError] = useState<string | null>(null);
     const [voucherValues, setVoucherValues] = useState<Record<string, string>>({});
-    const [voucherTotal, setVoucherTotal] = useState<VoucherTotalPayload>({
-        lines: [],
-        totalPrice: null,
-    });
+    const [voucherTotal, setVoucherTotal] = useState<VoucherTotalPayload>({ lines: [], totalPrice: null });
+
+    const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
+    const { fields: voucherFields, loading: voucherLoading, error: voucherError } = useSteamVoucherFields(activeType === "voucher");
 
     const {
         login,
@@ -59,95 +50,27 @@ function Steam() {
         handlePay: validatePay,
     } = useSteamValidation();
 
-    const isSticky = useStickyScroll(0.7);
-
-    const modalFunc = () => setModal((prev) => !prev);
-    const bankFunc = () => setBanks((prev) => !prev);
-
-    // Keep as-is for deposit; for voucher it's just unused.
-    const { usdAmount, loading: steamRateLoading } = useSteamRate(amountTmt);
-
-    const { createTopupPayment, createVoucherPayment, loading: acquiringLoading, error: acquiringError } =
-        useSteamAcquiringPay();
-
-    // Fetch voucher_fields (only when voucher tab is active)
-    useEffect(() => {
-        if (activeType !== "voucher") return;
-        if (voucherFields.length) return;
-
-        let cancelled = false;
-
-        (async () => {
-            try {
-                setVoucherLoading(true);
-                setVoucherError(null);
-
-                const token = localStorage.getItem("session_token");
-                const res = await fetch(STEAM_FORMS_URL, {
-                    method: "GET",
-                    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-                });
-
-                if (!res.ok) {
-                    const text = await res.text().catch(() => "");
-                    throw new Error(text || `Request failed with status ${res.status}`);
-                }
-
-                const data = (await res.json()) as any;
-
-                const fields = (data?.forms?.voucher_fields ?? data?.voucher_fields) as unknown;
-                const arr = Array.isArray(fields) ? (fields as VoucherField[]) : [];
-
-                if (!cancelled) setVoucherFields(arr);
-            } catch (e) {
-                if (cancelled) return;
-                setVoucherError(e instanceof Error ? e.message : "Failed to load voucher fields");
-            } finally {
-                if (!cancelled) setVoucherLoading(false);
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeType]);
-
     const voucherFieldMeta = useMemo(
         () => voucherFields.map((f) => ({ name: f.name, required: f.required })),
         [voucherFields]
     );
 
-    const handlePay = () => {
-        const isValid =
+    const { pay, loading: acquiringLoading, error: acquiringError } = useSteamPayHandler({
+        activeType,
+        selectedBank,
+        login,
+        email,
+        amountTmt,
+        voucherValues,
+        isValid: () =>
             activeType === "voucher"
-                ? validatePay({
-                    type: "voucher",
-                    voucherFields: voucherFieldMeta,
-                    voucherValues,
-                })
-                : validatePay({ type: "deposit" });
+                ? validatePay({ type: "voucher", voucherFields: voucherFieldMeta, voucherValues })
+                : validatePay({ type: "deposit" }),
+    });
 
-        if (!isValid) return;
-        if (!selectedBank) return;
-
-        if (activeType === "voucher") {
-            const payload: Record<string, unknown> = {};
-            Object.entries(voucherValues).forEach(([k, v]) => {
-                payload[k] = typeof v === "string" ? v.trim() : v;
-            });
-            payload.bank = selectedBank;
-            createVoucherPayment(payload);
-            return;
-        }
-
-        createTopupPayment({
-            steam_username: login.trim(),
-            amount_tmt: amountTmt,
-            email: email.trim(),
-            bank: selectedBank,
-        });
-    };
+    const isSticky = useStickyScroll(0.7);
+    const modalFunc = () => setModal((prev) => !prev);
+    const bankFunc = () => setBanks((prev) => !prev);
 
     return (
         <div className="h-full relative pt-[72px]">
@@ -240,7 +163,7 @@ function Steam() {
                             isConfirmed={isConfirmed}
                             onToggleConfirm={handleToggleConfirm}
                             errors={{ bank: errors.bank, confirm: errors.confirm }}
-                            onPay={handlePay}
+                            onPay={pay}
                             isSticky={isSticky}
                             steamAmountUsd={usdAmount}
                             isSteamRateLoading={steamRateLoading}
@@ -259,7 +182,7 @@ function Steam() {
                             isConfirmed={isConfirmed}
                             onToggleConfirm={handleToggleConfirm}
                             errors={{ bank: errors.bank, confirm: errors.confirm }}
-                            onPay={handlePay}
+                            onPay={pay}
                             isSticky={isSticky}
                             lines={voucherTotal.lines}
                             totalPrice={voucherTotal.totalPrice}

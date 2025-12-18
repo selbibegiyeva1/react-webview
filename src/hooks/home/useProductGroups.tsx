@@ -29,7 +29,6 @@ export function useProductGroups() {
                 setLoading(true);
                 setError(null);
 
-                // ✅ fetch entire endpoint once (no category query)
                 const res = await fetch(GROUPS_URL, {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
