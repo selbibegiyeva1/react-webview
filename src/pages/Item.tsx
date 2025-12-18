@@ -11,6 +11,7 @@ import ItemTotal from "../component/item/ItemTotal";
 import Banks from "../component/steam/Banks";
 import Faq from "../component/steam/Faq";
 import Footer from "../component/layout/Footer";
+import ScrollUp from "../component/scrollUp";
 
 import { useGroupItem } from "../hooks/items/useGroupItem";
 import { useStickyScroll } from "../hooks/steam/useStickyScroll";
@@ -97,9 +98,11 @@ function Item() {
                 </div>
 
                 <div className="flex items-center gap-2.5 mb-4 px-4 font-medium text-[#969FA8]">
-                    <Link to="/" className="flex items-center gap-2.5">
+                    <Link to='/' className="flex items-center gap-2.5">
+                        <img src="/steam/menu.png" alt="menu" className="w-6" />
                         <span>Главная</span>
                     </Link>
+                    <img src="/steam/arrow.png" alt="arrow" className="w-6" />
                     <span className="text-white">Продукт</span>
                 </div>
 
@@ -158,6 +161,7 @@ function Item() {
             </div>
 
             <Footer />
+            <ScrollUp />
         </div>
     );
 }
