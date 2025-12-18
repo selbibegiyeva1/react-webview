@@ -236,7 +236,6 @@ function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors,
                     const currentValue = values[field.name] ?? "";
                     const showError = !!fieldErrors?.[field.name];
 
-                    // product_id as purple buttons
                     if (field.name === "product_id" && field.type === "options") {
                         return (
                             <div key={field.name} id={field.name} className="flex flex-col gap-4">
@@ -277,7 +276,6 @@ function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors,
                         );
                     }
 
-                    // options -> select
                     if (field.type === "options") {
                         const options = Array.isArray(field.options) ? (field.options as GroupItemOption[]) : [];
 
@@ -308,22 +306,11 @@ function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors,
                                         ))}
                                     </select>
 
-                                    <svg
-                                        className="absolute top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M6 9L11.2929 14.2929C11.6834 14.6834 12.3166 14.6834 12.7071 14.2929L18 9"
-                                            stroke="white"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
+                                    <img
+                                        src="/steam/arrow_down.png"
+                                        alt="arrow_down"
+                                        className="absolute w-5 top-[50%] right-0 translate-x-[-50%] translate-y-[-50%]"
+                                    />
                                 </div>
 
                                 {showError && <p className="mt-2 text-[12px] text-[#F50100]">Обязательное поле</p>}
@@ -331,7 +318,6 @@ function ItemForm({ activeType, status, data, error, onTotalChange, fieldErrors,
                         );
                     }
 
-                    // text -> input
                     return (
                         <div key={field.name} className="flex flex-col">
                             <span className="font-medium">{field.label}</span>
