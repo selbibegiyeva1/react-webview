@@ -12,16 +12,26 @@ function PayOption({ activeType, onChangeType, onChangeAmount, region, onChangeR
     const nominals = [20, 40, 100, 150, 200, 500, 1000];
 
     const [toltip, setToltip] = useState(false);
+    const [voucherTip, setVoucherTip] = useState(false);
     const [activeNominal, setActiveNominal] = useState<number>(nominals[0]);
+
+    const toggleVoucherTip = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setVoucherTip((p) => !p);
+    };
+
+    const handleNominalClick = (nominal: number) => {
+        setActiveNominal(nominal);
+    };
 
     useEffect(() => {
         if (activeType !== "deposit") return;
         onChangeAmount(activeNominal);
     }, [activeNominal, activeType, onChangeAmount]);
 
-    const handleNominalClick = (nominal: number) => {
-        setActiveNominal(nominal);
-    };
+    useEffect(() => {
+        if (activeType !== "voucher") setVoucherTip(false);
+    }, [activeType]);
 
     const toltipFunc = () => setToltip((prev) => !prev);
 
@@ -42,10 +52,20 @@ function PayOption({ activeType, onChangeType, onChangeAmount, region, onChangeR
                 <button
                     type="button"
                     onClick={() => onChangeType("voucher")}
-                    className={`px-4 py-[10.5px] font-bold rounded-[10px] transition-all 
+                    className={`px-4 py-[10.5px] flex items-center gap-2.5 font-bold rounded-[10px] transition-all 
                         ${activeType === "voucher" ? "bg-[#79109D]" : "bg-[#2F2F36]"}`}
                 >
-                    Ваучер
+                    <span>Ваучер</span>
+                    <div className="relative">
+                        <img src="/steam/help2.png" onClick={toggleVoucherTip} className="w-5" alt="help" />
+                        <p
+                            className={`bg-[#2F2F36] text-white w-[293px] text-left absolute bottom-[-170px] z-10 -left-40 font-medium text-[14px] p-4 rounded-2xl
+                            ${voucherTip ? "block" : "hidden"}`}
+                        >
+                            Ваучер - уникальная комбинация из цифр и букв. У ваучера есть денежный
+                            номинал, который зачисляется на игровой кошелёк при активации.
+                        </p>
+                    </div>
                 </button>
             </div>
 

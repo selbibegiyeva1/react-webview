@@ -132,7 +132,7 @@ function Item() {
                     />
                 </div>
 
-                <div className={`my-4 ${isSticky ? "sticky bottom-0 z-50" : "px-4"}`}>
+                <div className={`my-4 ${isSticky ? "sticky bottom-0" : "px-4"}`}>
                     <ItemTotal
                         isSticky={isSticky}
                         lines={totalPayload.lines}

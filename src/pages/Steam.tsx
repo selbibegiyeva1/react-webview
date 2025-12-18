@@ -151,7 +151,7 @@ function Steam() {
                     )}
                 </div>
 
-                <div className={`my-4 ${isSticky ? "sticky bottom-0" : "px-4"}`}>
+                <div className={`my-4 z-30 ${isSticky ? "sticky bottom-0" : "px-4"}`}>
                     <Total {...commonTotalProps} {...modeTotalProps} />
                 </div>
 
