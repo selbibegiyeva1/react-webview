@@ -47,6 +47,13 @@ function Search() {
         setQuery("");
         inputRef.current?.blur();
 
+        const name = (g.group_name || "").trim().toLowerCase();
+
+        if (name === "steam") {
+            navigate("/steam");
+            return;
+        }
+
         navigate(`/item/${encodeURIComponent(g.group_name)}`);
     };
 

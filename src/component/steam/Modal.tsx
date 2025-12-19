@@ -7,7 +7,7 @@ function Modal({ click, modal }: ModalProps) {
     return (
         <div
             className={`
-                fixed inset-0 bg-[#00000059] z-20
+                fixed inset-0 bg-[#00000059] z-60
                 transition-opacity duration-300 ease-out
                 ${modal ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
             `}

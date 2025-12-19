@@ -61,7 +61,7 @@ function Navbar() {
                     )}
                 </div>
 
-                <select className="outline-none text-white bg-[#22222899] text-[15px] font-medium">
+                <select className="outline-none text-white text-[15px] font-medium">
                     <option value="RU">RU</option>
                     <option value="TKM">TKM</option>
                 </select>

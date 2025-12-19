@@ -11,8 +11,8 @@ function Banks({ click, modal, value, onChange }: BanksProps) {
     if (!modal) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-[#2F2F36] px-6 pt-6 pb-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={click}>
+            <div className="w-full max-w-md rounded-2xl bg-[#2F2F36] px-6 pt-6 pb-8" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between border-b border-[#FFFFFF26] pb-4">
                     <p className="font-medium text-[20px]">Выберите ваш банк</p>
                     <img src="/steam/cross.png" alt="cross" className="w-8 cursor-pointer" onClick={click} />

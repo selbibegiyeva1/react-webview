@@ -50,7 +50,13 @@ function Grid2() {
                     <div className="grid grid-cols-2 gap-5">
                         {filtered.map((group) => (
                             <div key={group.group_name}>
-                                <Link to={`/item/${encodeURIComponent(group.group_name)}`}>
+                                <Link
+                                    to={
+                                        group.group_name.trim().toLowerCase() === "steam"
+                                            ? "/steam"
+                                            : `/item/${encodeURIComponent(group.group_name)}`
+                                    }
+                                >
                                     <div className="overflow-hidden rounded-3xl h-[185px] md:h-[200px] bg-[#222228] flex items-center justify-center">
                                         <img
                                             src={group.icon_url}

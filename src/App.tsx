@@ -7,11 +7,13 @@ import Steam from "./pages/Steam";
 import Item from "./pages/Item";
 
 import SessionGuard from "./component/SessionGuard";
+import ScrollToTop from "./component/ScrollToTop";
 
 function App() {
   return (
     <div className="bg-[#18181B]">
       <Navbar />
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
