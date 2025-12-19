@@ -11,6 +11,7 @@ function Modal({ click, modal }: ModalProps) {
                 transition-opacity duration-300 ease-out
                 ${modal ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
             `}
+            onClick={click}
         >
             <div className="relative w-full h-full">
                 <div
@@ -20,6 +21,7 @@ function Modal({ click, modal }: ModalProps) {
                         transform transition-transform duration-300 ease-out
                         ${modal ? "translate-y-0" : "translate-y-full"}
                     `}
+                    onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-center justify-between">
                         <p className="font-medium text-[20px]">Как найти свой логин в Steam?</p>
