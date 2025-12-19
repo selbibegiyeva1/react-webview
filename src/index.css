@@ -9,7 +9,7 @@
 
 @layer {
     .navbar {
-        @apply bg-[#22222899] h-[72px] flex items-center border-b border-b-[#FFFFFF1A] fixed w-full left-0 top-0 z-10 backdrop-blur-3xl;
+        @apply bg-[#22222899] h-[72px] flex items-center border-b border-b-[#FFFFFF1A] fixed w-full left-0 top-0 z-20 backdrop-blur-3xl;
     }
 }
 
