@@ -82,8 +82,6 @@ function Total(props: TotalProps) {
                     : "-"
             : null;
 
-    const isPayDisabled = !!acquiringLoading || (props.mode === "voucher" && totalTmt == null);
-
     return (
         <form
             className={
@@ -159,7 +157,7 @@ function Total(props: TotalProps) {
                 {props.mode === "deposit" ? (
                     <p>К зачислению в Steam {formattedSteamAmount}$</p>
                 ) : (
-                    <p>Итого {totalText}</p>
+                    <div style={{ display: "none" }} />
                 )}
             </div>
 
@@ -207,7 +205,6 @@ function Total(props: TotalProps) {
             <button
                 type="submit"
                 className="w-full py-4 rounded-[10px] bg-[#A132C7] font-bold disabled:opacity-60"
-                disabled={isPayDisabled}
             >
                 {payText}
             </button>

@@ -99,10 +99,12 @@ function ItemTotal({
                 className={isSticky ? "hidden" : "mb-4 flex items-center gap-3 px-1 py-1 rounded-[10px] cursor-pointer"}
             >
                 <div
-                    className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors${showConfirmError
+                    className={`min-h-6 min-w-6 rounded-sm border-2 flex items-center justify-center transition-colors ${showConfirmError
                         ? "border-[#F50100]"
-                        : isConfirmed ? "bg-[#A132C7] border-[#A132C7]" : "bg-transparent border-[#FFFFFF26]"}`
-                    }
+                        : isConfirmed
+                            ? "bg-[#A132C7] border-[#A132C7]"
+                            : "bg-transparent border-[#FFFFFF26]"
+                        }`}
                 >
                     {(isConfirmed || showConfirmError) && (
                         <svg
